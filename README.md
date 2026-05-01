@@ -29,7 +29,7 @@ The system combines rule-based logic with AI to deliver reliable and easy-to-und
 - 🤖 AI-powered answers for additional queries  
 - 🌐 Modern interactive UI with animations  
 - 📱 Responsive design (mobile-friendly)  
-
+- 💬 Handles real-world natural language questions (even informal queries)
 ---
 
 ## 🛠️ Technologies Used
