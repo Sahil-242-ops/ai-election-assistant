@@ -62,8 +62,8 @@ The app is deployed using Cloud Run:
 
 ### 1. Clone repository
 ```bash
-git clone https://github.com/YOUR-USERNAME/ai-election-assistant.git
-cd ai-election-assistant
+git clone https://github.com/Sahil-242-ops/Election Process.git
+cd Elecction Process
 ```
 
 ### 2. Install dependencies
