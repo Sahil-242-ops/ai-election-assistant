@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Election Guide Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="/css/style.css?v=1.1">
+</head>
+<body>
+    <nav class="main-navbar">
+        <div class="nav-links">
+            <a class="nav-item active" onclick="switchSection('home', event)">HOME</a>
+            <a class="nav-item" onclick="switchSection('voter-services', event)">VOTER SERVICES</a>
+            <a class="nav-item" onclick="switchSection('education', event)">EDUCATION</a>
+            <a class="nav-item" onclick="switchSection('timeline', event)">TIMELINE</a>
+            <a class="nav-item" onclick="switchSection('ai-assistant', event)">AI ASSISTANT</a>
+            <a class="nav-item" href="/quiz">QUIZ</a>
+        </div>
+        <div class="nav-actions">
+            <!-- Auth Buttons -->
+            <button class="auth-btn" id="login-btn" onclick="openModal()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                user
+            </button>
+            <div class="user-profile" id="user-profile">
+                <div class="user-pill">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    <span id="user-name-display">user</span>
+                </div>
+                <div class="logout-icon" onclick="logout()" title="Logout">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="container">
+        <!-- HOME SECTION -->
+        <div class="content-section active" id="section-home">
+            <div class="header" style="margin-top: 0;">
+                <h1>AI Election Assistant</h1>
+                <p>Your intelligent, unbiased guide to navigating the election process.</p>
+            </div>
+            
+            <!-- INTERACTIVE EDUCATIONAL TOOLS -->
+            <div class="tools-section">
+                <div class="tools-header">
+                    <h2>Interactive Educational Tools</h2>
+                    <p>We make understanding the complex democratic machinery simple through AI and interactive visualizations.</p>
+                </div>
+                
+                <div class="tools-grid">
+                    <!-- Card 1 -->
+                    <div class="tool-card" onclick="switchSection('ai-assistant', event)">
+                        <div class="tool-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        </div>
+                        <h3>AI Chat Assistant</h3>
+                        <p>Ask questions and get instant, simplified explanations about any part of the election process.</p>
+                        <a href="#" class="explore-link">Explore &rarr;</a>
+                    </div>
+                    
+                    <!-- Card 2 -->
+                    <div class="tool-card" onclick="switchSection('timeline', event)">
+                        <div class="tool-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                        </div>
+                        <h3>Interactive Timeline</h3>
+                        <p>Follow the election process step-by-step from voter registration to counting and results.</p>
+                        <a href="#" class="explore-link">Explore &rarr;</a>
+                    </div>
+                    
+                    <!-- Card 3 -->
+                    <div class="tool-card" onclick="switchSection('education', event)">
+                        <div class="tool-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+                        </div>
+                        <h3>Guided Learning</h3>
+                        <p>Learn at your own pace with structured modules containing clear examples and visual aids.</p>
+                        <a href="#" class="explore-link">Explore &rarr;</a>
+                    </div>
+                    
+                    <!-- Card 4 -->
+                    <div class="tool-card" onclick="window.location.href='/quiz'">
+                        <div class="tool-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        </div>
+                        <h3>Quiz System</h3>
+                        <p>Test your knowledge with section-wise quizzes and get instant feedback on your progress.</p>
+                        <a href="#" class="explore-link">Explore &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VOTER SERVICES SECTION -->
+        <div class="content-section" id="section-voter-services">
+            <div class="verify-card" id="verify-card">
+                <div class="scanner-line"></div>
+                <h2>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    Verify Voter Status
+                </h2>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.95rem;">Enter your 10-digit EPIC Number (Voter ID) to instantly verify your status securely.</p>
+                <div class="verify-input-group">
+                    <input type="text" id="epic-input" class="epic-input" placeholder="ABC1234567" maxlength="10" />
+                    <button class="verify-btn" onclick="verifyVoter()" id="verify-btn">Verify Now</button>
+                </div>
+                <div class="verify-result" id="verify-result">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- EDUCATION SECTION -->
+        <div class="content-section" id="section-education">
+            <div class="learning-flow">
+                <h2>📘 Guided Learning Flow</h2>
+
+                <!-- Progress Bar -->
+                <div class="progress-box">
+                    <div class="progress-header">
+                        <span id="module-counter">Module 1 of 5</span>
+                        <span id="progress-percentage">20% Completed</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                </div>
+
+                <!-- Module Card -->
+                <div class="modern-card">
+                    <div class="card-icon" id="module-icon">📄</div>
+
+                    <h3 id="module-title">1. Eligibility & Voter Registration</h3>
+
+                    <p id="module-content">
+                        Before you can vote, you must be registered...
+                    </p>
+
+                    <div class="card-footer">
+                        <button class="prev-btn" id="prev-module-btn" onclick="prevModule()">← Previous</button>
+                        <button class="next-btn" id="next-module-btn" onclick="nextModule()">Next Module →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI ASSISTANT SECTION -->
+        <div class="content-section" id="section-ai-assistant">
+            <div class="chat-card" style="margin-top: 0;">
+                <div class="input-group">
+                    <input type="text" id="question" placeholder="Ask about voting, EVMs, eligibility..." onkeypress="handleKeyPress(event)" />
+                    <button onclick="ask()" id="ask-btn">
+                        <span>Ask AI</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    </button>
+                </div>
+
+                <div class="loader-container" id="loader">
+                    <div class="spinner"></div>
+                </div>
+
+                <div class="response-container" id="response-container">
+                    <div id="response"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TIMELINE SECTION -->
+        <div class="content-section" id="section-timeline">
+            <div class="timeline-container">
+                <h2>The Election Journey</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem; text-align: center;">Follow the steps from announcement to results.</p>
+                
+                <div class="timeline-step">
+                    <div class="step-icon">1</div>
+                    <div class="step-content">
+                        <h3>Notification & Registration</h3>
+                        <p>The Election Commission announces the dates. Citizens ensure their names are on the voter list (Electoral Roll).</p>
+                    </div>
+                </div>
+
+                <div class="timeline-step">
+                    <div class="step-icon">2</div>
+                    <div class="step-content">
+                        <h3>Filing Nominations</h3>
+                        <p>Candidates representing political parties or independents file their papers to run for office.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-step">
+                    <div class="step-icon">3</div>
+                    <div class="step-content">
+                        <h3>Campaigning</h3>
+                        <p>Candidates present their manifestos and rally for support. The Model Code of Conduct is in effect.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-step">
+                    <div class="step-icon">4</div>
+                    <div class="step-content">
+                        <h3>Polling Day</h3>
+                        <p>Citizens go to their designated booths, show their Voter ID, and cast their vote securely using EVMs.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-step">
+                    <div class="step-icon">5</div>
+                    <div class="step-content">
+                        <h3>Counting & Results</h3>
+                        <p>EVMs are unsealed under strict security. Votes are counted, and the candidate with the most votes wins!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- COMPREHENSIVE FOOTER -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-column brand-column">
+                <div class="footer-logo">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
+                    <h2>Election Commission</h2>
+                </div>
+                <p>Dedicated to conducting free, fair, and accessible elections. Our mission is to uphold the democratic process and ensure every eligible citizen's voice is heard.</p>
+            </div>
+            
+            <div class="footer-column">
+                <h3>QUICK LINKS</h3>
+                <ul>
+                    <li><a href="#">Home Portal</a></li>
+                    <li><a href="#">Voter Education</a></li>
+                    <li><a href="#">Verify Voter ID</a></li>
+                    <li><a href="#">Election Schedule</a></li>
+                    <li><a href="#">FAQs</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3>RESOURCES</h3>
+                <ul>
+                    <li><a href="#">Electoral Rolls</a></li>
+                    <li><a href="#">Download Forms</a></li>
+                    <li><a href="#">Candidate Affidavits</a></li>
+                    <li><a href="#">RTI Information</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column contact-column">
+                <h3>CONTACT US</h3>
+                <ul>
+                    <li>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                        <span>Nirvachan Sadan, Ashoka Road, New<br>Delhi 110001</span>
+                    </li>
+                    <li>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                        <span>Toll Free: 1950</span>
+                    </li>
+                    <li>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                        <span>complaints@eci.gov.demo</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <div class="copyright">
+                &copy; 2026 Election Commission Demo. All rights reserved.
+            </div>
+            <div class="footer-legal">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Accessibility Statement</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="auth-modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal()">×</button>
+            <h2 class="modal-title">Welcome</h2>
+            <p style="text-align: center; color: var(--text-muted); margin-bottom: 2rem;">Sign in to access personalized election insights.</p>
+            <input type="text" id="auth-name" class="auth-input" placeholder="Your Name" />
+            <input type="email" id="auth-email" class="auth-input" placeholder="Email Address" />
+            <button class="auth-submit" style="background: linear-gradient(135deg, var(--primary), #7c3aed); color: white; font-weight: 600; border: none; cursor: pointer; transition: transform 0.2s;" onclick="login()">Continue</button>
+        </div>
+    </div>
+
+    <script src="/js/main.js"></script>
+</html>
