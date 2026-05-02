@@ -15,7 +15,7 @@ The system combines rule-based logic with AI to deliver reliable and easy-to-und
 ---
 
 ## 📸 Screenshots
-![AI Election Assistant Interface](screenshot.png)
+![AI Election Assistant Interface](demo.png)
 
 ---
 
@@ -27,6 +27,8 @@ The system combines rule-based logic with AI to deliver reliable and easy-to-und
 - 📊 Election timeline & stages  
 - 🏛️ Election Commission information  
 - 🤖 AI-powered answers for additional queries  
+- 🏆 Interactive Election Quiz with scoring  
+- 🥇 Global Leaderboard to track top scores  
 - 🌐 Modern interactive UI with animations  
 - 📱 Responsive design (mobile-friendly)  
 - 💬 Handles real-world natural language questions (even informal queries)
@@ -45,6 +47,7 @@ The system combines rule-based logic with AI to deliver reliable and easy-to-und
 - If a match is found → predefined accurate response is returned.
 - If no match → AI (Gemini API) generates a simple explanation.
 - The frontend sends requests to `/ask` API and displays formatted responses.
+- Users can test their knowledge with an interactive quiz and submit their scores to a global leaderboard.
 
 ---
 

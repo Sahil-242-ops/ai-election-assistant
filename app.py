@@ -386,6 +386,11 @@ def home():
         <div class="header">
             <h1>AI Election Assistant</h1>
             <p>Your intelligent, unbiased guide to navigating the election process.</p>
+            <div style="margin-top: 1.5rem;">
+                <a href="/quiz" style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 0.8rem 1.5rem; text-decoration: none; border-radius: 999px; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); transition: transform 0.2s;">
+                    🏆 Take the Election Quiz!
+                </a>
+            </div>
         </div>
 
         <div class="features">
@@ -608,6 +613,374 @@ def ask():
                 return jsonify({"answer": "Error connecting to AI assistant. Please try again later."})
         else:
             return jsonify({"answer": "I don't have a specific answer for that yet, and my AI connection isn't set up. Please ask another election-related question like 'how to register', 'what is an EVM', or 'who can vote'."})
+
+
+# =========================
+# 🔹 QUIZ & LEADERBOARD LOGIC
+# =========================
+leaderboard = []
+
+QUIZ_QUESTIONS = [
+    {
+        "id": 1,
+        "question": "What is the minimum voting age in India?",
+        "options": ["16", "18", "21", "25"],
+        "answer": "18"
+    },
+    {
+        "id": 2,
+        "question": "What does EVM stand for?",
+        "options": ["Election Verification Machine", "Electronic Voting Machine", "Electoral Vote Monitor", "Electronic Verification Method"],
+        "answer": "Electronic Voting Machine"
+    },
+    {
+        "id": 3,
+        "question": "Who conducts the national elections in India?",
+        "options": ["Supreme Court", "Parliament", "Election Commission of India", "President"],
+        "answer": "Election Commission of India"
+    },
+    {
+        "id": 4,
+        "question": "What does NOTA mean on an EVM?",
+        "options": ["Number Of Total Abstentions", "None Of The Above", "Not On This Apparatus", "No Official Total Allowed"],
+        "answer": "None Of The Above"
+    },
+    {
+        "id": 5,
+        "question": "What is VVPAT used for?",
+        "options": ["Voter Registration", "Paper Audit Trail for Verification", "Counting Votes Automatically", "Campaign Advertising"],
+        "answer": "Paper Audit Trail for Verification"
+    }
+]
+
+@app.route("/api/questions", methods=["GET"])
+def get_questions():
+    # Return questions without answers for safety, though frontend handles it
+    questions_no_answers = [{"id": q["id"], "question": q["question"], "options": q["options"]} for q in QUIZ_QUESTIONS]
+    return jsonify(questions_no_answers)
+
+@app.route("/api/answer", methods=["POST"])
+def check_answer():
+    data = request.json
+    q_id = data.get("id")
+    user_answer = data.get("answer")
+    correct = False
+    for q in QUIZ_QUESTIONS:
+        if q["id"] == q_id:
+            correct = (q["answer"] == user_answer)
+            break
+    return jsonify({"correct": correct})
+
+@app.route("/api/leaderboard", methods=["GET", "POST"])
+def manage_leaderboard():
+    global leaderboard
+    if request.method == "POST":
+        data = request.json
+        name = data.get("name", "Anonymous").strip()[:20]
+        score = data.get("score", 0)
+        if name:
+            leaderboard.append({"name": name, "score": score})
+            # Sort by score descending and keep top 10
+            leaderboard = sorted(leaderboard, key=lambda x: x["score"], reverse=True)[:10]
+        return jsonify({"success": True})
+    
+    return jsonify(leaderboard)
+
+@app.route("/quiz")
+def quiz():
+    return """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Election Quiz & Leaderboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-hover: #059669;
+            --bg-gradient-start: #0f172a;
+            --bg-gradient-end: #1e1b4b;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            padding: 2rem;
+        }
+
+        .background-blobs {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; overflow: hidden; pointer-events: none;
+        }
+        .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.5; animation: float 10s infinite ease-in-out alternate; }
+        .blob-1 { top: -10%; left: -10%; width: 500px; height: 500px; background: #10b981; animation-delay: 0s; }
+        .blob-2 { bottom: -10%; right: -10%; width: 400px; height: 400px; background: #4f46e5; animation-delay: -5s; }
+        @keyframes float { 0% { transform: translateY(0) scale(1); } 100% { transform: translateY(20px) scale(1.1); } }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            z-index: 1;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        h1 { margin-bottom: 1rem; background: linear-gradient(to right, #6ee7b7, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        p { color: var(--text-muted); margin-bottom: 2rem; }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            color: white; border: none; border-radius: 12px; padding: 0.8rem 1.5rem;
+            font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;
+            text-decoration: none; display: inline-block;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -10px var(--primary); }
+
+        .btn-outline {
+            background: transparent; border: 1px solid var(--primary); color: var(--text-main);
+        }
+        .btn-outline:hover { background: rgba(16, 185, 129, 0.1); }
+
+        .option-btn {
+            display: block; width: 100%; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--card-border);
+            padding: 1rem; border-radius: 12px; margin-bottom: 1rem; color: var(--text-main);
+            font-size: 1rem; cursor: pointer; transition: all 0.2s ease; text-align: left;
+        }
+        .option-btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.1); border-color: var(--primary); }
+        .option-btn.correct { background: rgba(16, 185, 129, 0.2); border-color: #10b981; }
+        .option-btn.wrong { background: rgba(239, 68, 68, 0.2); border-color: #ef4444; }
+
+        .hidden { display: none !important; }
+        
+        #quiz-section, #result-section, #leaderboard-section { display: flex; flex-direction: column; align-items: center; width: 100%; }
+
+        .score-display { font-size: 3rem; font-weight: bold; margin: 1rem 0; color: #10b981; }
+
+        input[type="text"] {
+            width: 100%; max-width: 300px; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--card-border);
+            border-radius: 12px; padding: 0.8rem 1rem; color: var(--text-main); margin-bottom: 1rem; text-align: center;
+        }
+        input[type="text"]:focus { outline: none; border-color: var(--primary); }
+
+        .leaderboard-table { width: 100%; border-collapse: collapse; margin-top: 1rem; text-align: left; }
+        .leaderboard-table th, .leaderboard-table td { padding: 0.8rem; border-bottom: 1px solid var(--card-border); }
+        .leaderboard-table th { color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; }
+        .leaderboard-table tr:nth-child(1) td { color: #fbbf24; font-weight: bold; }
+        .leaderboard-table tr:nth-child(2) td { color: #94a3b8; font-weight: bold; }
+        .leaderboard-table tr:nth-child(3) td { color: #b45309; font-weight: bold; }
+        
+        .top-nav {
+            position: absolute; top: 2rem; left: 2rem; z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="top-nav">
+        <a href="/" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.9rem;">← Back to Assistant</a>
+    </div>
+
+    <div class="container" id="main-container">
+        <!-- Start Section -->
+        <div id="start-section">
+            <h1>Election Quiz</h1>
+            <p>Test your knowledge about the Indian electoral process.</p>
+            <button class="btn" onclick="startQuiz()">Start Quiz</button>
+            <button class="btn btn-outline" style="margin-left: 1rem;" onclick="showLeaderboard()">View Leaderboard</button>
+        </div>
+
+        <!-- Quiz Section -->
+        <div id="quiz-section" class="hidden">
+            <h2 id="question-text" style="margin-bottom: 1.5rem; font-size: 1.2rem;">Loading...</h2>
+            <div id="options-container" style="width: 100%;"></div>
+            <div id="feedback" style="margin-top: 1rem; min-height: 24px; font-weight: bold;"></div>
+            <button id="next-btn" class="btn hidden" style="margin-top: 1rem;" onclick="nextQuestion()">Next Question</button>
+        </div>
+
+        <!-- Result Section -->
+        <div id="result-section" class="hidden">
+            <h1>Quiz Complete!</h1>
+            <p>Your final score:</p>
+            <div class="score-display" id="final-score">0</div>
+            <p style="margin-bottom: 1rem;">Enter your name for the leaderboard:</p>
+            <input type="text" id="player-name" placeholder="Your Name" maxlength="20">
+            <button class="btn" onclick="submitScore()">Submit Score</button>
+        </div>
+
+        <!-- Leaderboard Section -->
+        <div id="leaderboard-section" class="hidden">
+            <h1>🏆 Leaderboard</h1>
+            <p>Top scores from all players</p>
+            <table class="leaderboard-table" id="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th width="20%">Rank</th>
+                        <th>Name</th>
+                        <th width="30%" style="text-align: right;">Score</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body">
+                    <!-- Populated by JS -->
+                </tbody>
+            </table>
+            <button class="btn" style="margin-top: 2rem;" onclick="location.reload()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        let questions = [];
+        let currentQIndex = 0;
+        let score = 0;
+
+        async function startQuiz() {
+            document.getElementById('start-section').classList.add('hidden');
+            document.getElementById('quiz-section').classList.remove('hidden');
+            
+            try {
+                let res = await fetch('/api/questions');
+                questions = await res.json();
+                score = 0;
+                currentQIndex = 0;
+                loadQuestion();
+            } catch (e) {
+                document.getElementById('question-text').innerText = "Error loading questions. Please try again later.";
+            }
+        }
+
+        function loadQuestion() {
+            let q = questions[currentQIndex];
+            document.getElementById('question-text').innerText = `Q${currentQIndex + 1}: ${q.question}`;
+            
+            let optionsHtml = '';
+            q.options.forEach((opt, idx) => {
+                optionsHtml += `<button class="option-btn" onclick="selectOption('${opt.replace(/'/g, "\\'")}', this)">${opt}</button>`;
+            });
+            document.getElementById('options-container').innerHTML = optionsHtml;
+            document.getElementById('feedback').innerText = '';
+            document.getElementById('next-btn').classList.add('hidden');
+        }
+
+        async function selectOption(selectedAnswer, btnElement) {
+            // Disable all buttons
+            let buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(b => b.disabled = true);
+            
+            let qId = questions[currentQIndex].id;
+            
+            try {
+                let res = await fetch('/api/answer', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({id: qId, answer: selectedAnswer})
+                });
+                let result = await res.json();
+                
+                if (result.correct) {
+                    btnElement.classList.add('correct');
+                    document.getElementById('feedback').innerText = '✅ Correct!';
+                    document.getElementById('feedback').style.color = '#10b981';
+                    score += 10;
+                } else {
+                    btnElement.classList.add('wrong');
+                    document.getElementById('feedback').innerText = '❌ Incorrect!';
+                    document.getElementById('feedback').style.color = '#ef4444';
+                }
+                
+                document.getElementById('next-btn').classList.remove('hidden');
+            } catch (e) {
+                console.error("Error verifying answer");
+                document.getElementById('next-btn').classList.remove('hidden');
+            }
+        }
+
+        function nextQuestion() {
+            currentQIndex++;
+            if (currentQIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('result-section').classList.remove('hidden');
+            document.getElementById('final-score').innerText = score;
+        }
+
+        async function submitScore() {
+            let name = document.getElementById('player-name').value.trim();
+            if (!name) name = "Anonymous";
+            
+            try {
+                await fetch('/api/leaderboard', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({name: name, score: score})
+                });
+                showLeaderboard();
+            } catch (e) {
+                alert("Error submitting score");
+            }
+        }
+
+        async function showLeaderboard() {
+            document.getElementById('start-section').classList.add('hidden');
+            document.getElementById('result-section').classList.add('hidden');
+            document.getElementById('leaderboard-section').classList.remove('hidden');
+            
+            try {
+                let res = await fetch('/api/leaderboard');
+                let data = await res.json();
+                
+                let tbody = document.getElementById('leaderboard-body');
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" style="text-align: center;">No scores yet. Be the first!</td></tr>';
+                    return;
+                }
+                
+                let html = '';
+                data.forEach((entry, idx) => {
+                    let rankIcon = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`;
+                    html += `
+                        <tr>
+                            <td>${rankIcon}</td>
+                            <td>${entry.name}</td>
+                            <td style="text-align: right;">${entry.score}</td>
+                        </tr>
+                    `;
+                });
+                tbody.innerHTML = html;
+            } catch (e) {
+                console.error("Error loading leaderboard");
+            }
+        }
+    </script>
+</body>
+</html>"""
 
 
 # =========================
