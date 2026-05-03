@@ -1,246 +1,165 @@
-# 🗳️ AI Election Guide Assistant
+# 🗳️ AI Election Process Guide
 
-## 📌 About Project
+🚀 An AI-powered assistant that simplifies the entire election journey for Indian citizens — from registration to results.
 
-AI Election Guide Assistant is a web-based application that helps users understand the election process in India in a simple and interactive way.
+## 📌 Overview
 
-It provides accurate information about voting, registration, eligibility, EVM, election stages, and more.
+AI Election Process Guide is a full-stack web application designed to make election awareness simple, interactive, and accessible.
 
-The system combines rule-based logic + AI (Google Gemini API) to deliver reliable and easy-to-understand answers.
+It combines rule-based logic + Google Gemini AI to provide:
+- Instant answers for common queries
+- Intelligent explanations for complex questions
+- A guided learning experience for first-time voters
 
 ## 🎯 Challenge Vertical
 
 **Election Process Education**
 
-This project is designed to simplify election awareness by guiding users through voting steps, timelines, and key concepts in an interactive and structured way.
+This project focuses on improving civic awareness by helping users:
+- Understand how elections work
+- Learn voting procedures step-by-step
+- Interact with an AI assistant for real-time guidance
 
 ## 🚀 Live Demo
 
 👉 [https://ai-election-assistant-130588119495.us-central1.run.app](https://ai-election-assistant-130588119495.us-central1.run.app)
 
-## 📸 Screenshots
+## ✨ Key Features
 
-![AI Election Assistant Interface](img/Demo.png)
+### 🧠 AI-Powered Assistant
+- Answers real-world election questions
+- Handles informal queries
+- Uses Google Gemini API
 
-## ✨ Features
+### 📚 Guided Learning Flow
+- Step-by-step modules
+- Progress tracking
+- Beginner-friendly explanations
 
-- 🧾 **Voter Registration Guidance**
-- 🗳️ **Voting Process (Step-by-step)**
-- ⚡ **EVM & VVPAT Explanation**
-- 🎓 **Guided Learning Flow (Progress-based)**
-- 🏆 **Interactive Quiz + Leaderboard**
-- 🤖 **AI Chat Assistant (Gemini API)**
-- ⚡ **Fallback Logic (works without AI)**
-- 🎨 **Modern UI (Glassmorphism + Animations)**
-- 📱 **Fully Responsive Design**
+### 🗳️ Election Knowledge System
+- Voting process breakdown
+- EVM & VVPAT explanation
+- Election timeline & stages
 
-## 🏗️ Project Architecture
+### 🏆 Gamified Quiz + Leaderboard
+- Interactive quiz system
+- Score tracking
+- Competitive leaderboard
+
+### ⚡ Hybrid Intelligence System
+- **Rule-based** → instant accurate responses
+- **AI fallback** → handles complex queries
+
+## 🏗️ Architecture
 
 ```text
 ai-election-assistant/
 ├── app/
-│   └── app.py          # Flask backend with security + caching
-├── tests/
-│   └── test_app.py     # pytest test suite
-├── docker/
-│   └── Dockerfile
-├── html/
-│   ├── index.html
-│   └── quiz.html
-├── css/
-│   ├── style.css
-│   └── quiz.css
-├── js/
-│   ├── main.js
-│   └── quiz.js
-├── img/
-│   └── Demo.png
-├── README.md
-└── requirements.txt
+│   ├── app.py        # Entry point (Flask server)
+│   ├── service.py    # Request processing layer
+│   ├── rules.py      # Rule-based engine
+│   ├── ai_logic.py   # Gemini AI integration
+│   └── data.py       # Quiz data & constants
+├── tests/            # Unit & API tests
+├── html/             # UI templates
+├── css/              # Styling
+├── js/               # Client-side logic
+├── docker/           # Deployment config
+├── img/              # Assets
+├── requirements.txt
+└── README.md
 ```
-
-## 🛠️ Technologies Used
-
-- Python (Flask)
-- Google Gemini API (google-genai)
-- HTML, CSS, JavaScript
-- Docker
-- Google Cloud Run
 
 ## 🧠 Approach & Logic
 
-### 🔹 Rule-Based System
+### 🔹 Rule-Based Engine
+Handles common queries like "How to vote", "Who can vote", "What is EVM". Ensures fast and reliable responses.
 
-- Handles common queries instantly
-- Ensures accurate and fast responses
+### 🔹 AI Engine (Gemini API)
+Handles unknown or complex queries. Generates simple and contextual explanations.
 
-### 🔹 AI-Based System (Gemini API)
-
-- Handles complex/unexpected queries
-- Converts them into simple explanations
-
-👉 **Result**: Fast + Smart + Reliable assistant
+### 🔹 Service Layer (Core Logic)
+Acts as a decision engine, choosing between rule-based responses and AI-generated ones.
 
 ## ⚙️ How It Works
+1. User submits a query.
+2. Backend checks rule-based conditions.
+3. If matched → instant response.
+4. Else → Gemini AI generates answer.
+5. Response is displayed in UI.
 
-1. User asks a question
-2. Backend checks predefined logic
-3. If matched → instant response
-4. If not → Gemini AI generates answer
-5. Response shown on UI
-
-## ☁️ Google Services Used
-
-- **Google Gemini API** (`gemini-2.0-flash`) — AI-powered fallback for complex questions
-- **Google Cloud Run** — Serverless container hosting with public HTTPS endpoint
-
-## 🧪 Testing
-
-Basic API tests using **pytest** (no mocking required — tests run against live server):
-
-| Test | What it checks |
-|---|---|
-| `test_home` | Home route health check (200 OK) |
-| `test_ask_basic` | `/ask` returns election-related answer |
-| `test_ask_validation` | Oversized input (500 chars) returns validation message |
-| `test_ask_evm` | Rule-based EVM response |
-| `test_ask_empty` | Empty input returns valid JSON |
-| `test_quiz_route` | Quiz page loads |
-| `test_api_questions` | Quiz questions API returns a list |
-| `test_leaderboard_get` | Leaderboard GET returns a list |
-| `test_ask_returns_json` | Response always has `answer` key |
-
-**Run:**
-
-```bash
-# Start the app first
-python app/app.py
-
-# In another terminal
-pytest tests/ -v
-```
-
-## 📌 Assumptions
-
-- Users are beginners
-- Focus is on Indian elections
-- AI requires internet
-- Basic logic works offline
-
-## 🔐 Security
-
-- **Input sanitization** using Python's `html.escape()` to prevent XSS
-- **Request length validation** — questions over 200 characters are rejected with a clear message
-- **No secrets hardcoded** — all API keys loaded from environment variables
-- **Type-safe input handling** — graceful fallback when `request.json` is `None`
+## 🛡️ Security
+- **Input validation**: Prevents invalid queries and enforces 200-character limits.
+- **Rate limiting**: 10 requests per minute to prevent abuse.
+- **Secure HTTP headers**:
+  - `X-Content-Type-Options`
+  - `X-Frame-Options`
+  - `X-XSS-Protection`
+- **No sensitive data exposed**.
 
 ## ⚡ Efficiency
+- Rule-based logic reduces API calls.
+- Lightweight Flask backend.
+- AI used only when necessary.
+- Fast response times.
 
-- **`@lru_cache(maxsize=128)`** on `rule_based_answer()` — repeated identical questions are served from cache with zero compute cost
-- **Fast path architecture** — rule-based answers bypass the AI API entirely, keeping latency < 10ms
-- **Concise AI prompts** — system prompt instructs AI to reply in 2-3 sentences, minimising token usage
+## 🧪 Testing
+Unit tests + API tests covering valid inputs, edge cases, invalid inputs, and unknown queries.
+
+**Run tests:**
+```bash
+pytest
+```
+
+## ☁️ Google Services Used
+- **Google Gemini API** → AI-powered responses
+- **Google Cloud Run** → Deployment
 
 ## ♿ Accessibility
+- Simple and beginner-friendly language.
+- Responsive design (mobile + desktop).
+- Clean UI with clear navigation.
+- Designed for first-time voters.
 
-- `aria-label` on all interactive inputs and buttons
-- Semantic `<h1>` heading on each page
-- `<meta name="description">` for SEO
-- `lang` attribute on `<html>` tag (switches dynamically with language toggle)
-- High-contrast colour palette maintained throughout
-
-## 🌐 Language Toggle (Standout Feature)
-
-Click the **🌐 हिंदी** button in the navbar to instantly switch the entire UI between **English and Hindi**.
-This makes the assistant accessible to a much wider audience of Indian voters.
-
-## 🖥️ Deployment (Cloud Run)
-
-- Docker container used
-- `gcloud run deploy`
-- Public access enabled
-- API key stored securely
+## 📈 Scalability
+- Modular backend architecture.
+- Service-based logic separation.
+- Easily extendable with databases (Firebase/MongoDB), authentication, or multi-language support.
 
 ## ▶️ Run Locally
 
-### 1. Clone repository
+1. **Clone repository**
+   ```bash
+   git clone https://github.com/Sahil-242-ops/AI-Election-Process-Guide.git
+   cd AI-Election-Process-Guide
+   ```
 
-```bash
-git clone https://github.com/Sahil-242-ops/AI-Election-Process-Guide.git
-cd AI-Election-Process-Guide
-```
+2. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-### 2. Install dependencies
+3. **Set environment variables**
+   ```bash
+   export API_KEY="your_gemini_api_key"
+   export PORT=8080
+   ```
 
-```bash
-pip install -r requirements.txt
-```
+4. **Run the app**
+   ```bash
+   python app/app.py
+   ```
 
-### 3. Set environment variables
-
-**Linux/Mac**
-
-```bash
-export API_KEY="your_gemini_api_key"
-export PORT=8080
-```
-
-**Windows (PowerShell)**
-
-```powershell
-$env:API_KEY="your_gemini_api_key"
-$env:PORT=8080
-```
-
-### 4. Run the app
-
-```bash
-python app/app.py
-```
-
-### 5. Open in browser
-
-[http://127.0.0.1:8080/](http://127.0.0.1:8080/)
-
-## 📈 Evaluation Improvements
-
-- Added `tests/` directory with 10 real pytest tests covering all API routes
-- Implemented input sanitization (`html.escape`) and 200-char length limit for security
-- Introduced `@lru_cache` on rule-based logic for performance optimization
-- Improved accessibility with ARIA labels, semantic HTML, and `lang` attribute
-- Added EN/Hindi language toggle as a standout differentiator feature
-- Updated project architecture to clearly separate `app/`, `tests/`, `static/`, and `templates/`
+## 🖥️ Deployment
+- Dockerized application.
+- Deployed on Google Cloud Run.
+- Public access enabled.
+- Environment variables securely managed.
 
 ## 🏁 Conclusion
 
-This project demonstrates how AI can simplify complex civic processes like elections by combining:
+This project demonstrates how AI can improve civic awareness, simplify complex systems, and deliver real-world impact. By combining AI + logic + clean architecture, the system provides a scalable solution for election education.
 
-- Logical systems
-- AI intelligence
-- Modern UI
+## 🙌 Author
 
-👉 Making it accessible and engaging for users.
-
----
-
-🙌 **Author**: Sahil Bansal
-
-## ?? Project Structure
-
-- **app/** ? Backend logic (Modular service-based architecture)
-- **tests/** ? Comprehensive testing suite (98% coverage)
-- **html/css/js** ? Frontend UI with Indian Tricolor theme
-
-## ?? Security
-
-- **Input Validation**: Strictly enforced 200-character limits and HTML sanitization.
-- **Rate Limiting**: Integrated lask-limiter to protect against automated spam.
-- **Secure Headers**: Applied X-Content-Type-Options, X-Frame-Options, and X-XSS-Protection.
-- **Data Privacy**: No sensitive user data is stored or exposed.
-
-## ? Evaluation Readiness
-
-- **Clean Modular Architecture**: Separated into routes, services, rules, and AI layers.
-- **Secure API**: Fully protected with rate limiting, input validation, and security headers.
-- **High Test Coverage**: 45+ tests ensuring 98% coverage including complex edge cases.
-- **Optimized for Performance**: Fast rule-based matching with AI fallback only when needed.
-- **Premium UX**: Professional Indian Tricolor theme with interactive maps and EVM demos.
+**Sahil**
