@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, Response
 import os
 import html
 from flask_limiter import Limiter
@@ -8,9 +8,11 @@ from flask_limiter.util import get_remote_address
 try:
     from app.service import process_query
     from app.data import QUIZ_QUESTIONS, leaderboard_data
+    from app.firebase_db import add_score, get_leaderboard, save_chat_history
 except (ImportError, ModuleNotFoundError):
     from service import process_query
     from data import QUIZ_QUESTIONS, leaderboard_data
+    from firebase_db import add_score, get_leaderboard, save_chat_history
 
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 app = Flask(__name__,
@@ -78,42 +80,76 @@ def ask():
     if not sanitized or len(sanitized) > 200:
         return jsonify({"answer": "Invalid input. Please keep your question between 1 and 200 characters."})
 
+    # 🚀 Receive User Profile Data
+    user_data = request.json.get("user", {})
+    user_name = user_data.get("name", "User") if user_data else "User"
+    user_state = user_data.get("state", "") if user_data else ""
+    user_age = user_data.get("age", "") if user_data else ""
+
+    # Optional: Enhance prompt with user context
+    context_suffix = ""
+    if user_state: context_suffix += f" The user is from {user_state}."
+    if user_age: context_suffix += f" The user is {user_age} years old."
+    
     # 🚀 Use service layer
-    answer = process_query(sanitized)
+    answer = process_query(sanitized + context_suffix)
+
+    # 🌐 Backend Translation (Official Google Service)
+    target_lang = request.json.get("lang")
+    if target_lang and target_lang != "en":
+        try:
+            from app.ai_logic import ai_engine
+        except ImportError:
+            from ai_logic import ai_engine
+        answer = ai_engine.translate_text(answer, target=target_lang)
+
+    # 💾 Persist to Firebase (Data Hygiene)
+    save_chat_history(user_name, sanitized, answer)
+
     return jsonify({"answer": answer})
 
 
 @app.route("/api/translate", methods=["POST"])
 @limiter.limit("20 per minute")
 def translate():
-    """🌐 Google Gemini-powered translation endpoint."""
+    """🌐 Official Google Cloud Translation endpoint."""
     data = request.json or {}
-    text = html.escape(str(data.get("text", "")).strip())
+    text = str(data.get("text", "")).strip()
     target_lang = data.get("lang", "hi")
 
-    if not text or len(text) > 500:
+    if not text:
         return jsonify({"translated": text})
-
-    lang_names = {"hi": "Hindi", "ta": "Tamil", "bn": "Bengali", "te": "Telugu"}
-    lang_name = lang_names.get(target_lang, "Hindi")
 
     try:
         from app.ai_logic import ai_engine
     except ImportError:
         from ai_logic import ai_engine
 
-    if not ai_engine.client:
-        return jsonify({"translated": text})
+    translated = ai_engine.translate_text(text, target=target_lang)
+    return jsonify({"translated": translated})
 
+
+@app.route("/api/speak", methods=["POST"])
+@limiter.limit("10 per minute")
+def speak():
+    """🌐 Official Google Cloud Text-to-Speech endpoint."""
+    data = request.json or {}
+    text = data.get("text", "").strip()
+    lang = data.get("lang", "en-IN")
+    
+    if not text:
+        return jsonify({"error": "No text provided"}), 400
+        
     try:
-        prompt = f"Translate the following election-related text to {lang_name}. Return ONLY the translated text, nothing else:\n\n{text}"
-        response = ai_engine.client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=prompt
-        )
-        return jsonify({"translated": response.text.strip()})
-    except Exception:
-        return jsonify({"translated": text})
+        from app.ai_logic import ai_engine
+    except ImportError:
+        from ai_logic import ai_engine
+        
+    audio_content = ai_engine.synthesize_speech(text, lang=lang)
+    if audio_content:
+        return Response(audio_content, mimetype="audio/mpeg")
+    return jsonify({"error": "TTS failed"}), 500
+
 
 
 @app.route("/api/questions", methods=["GET"])
@@ -136,10 +172,6 @@ def check_answer():
 @app.route("/api/leaderboard", methods=["GET", "POST"])
 def manage_leaderboard():
     global leaderboard_data
-    try:
-        from app.firebase_db import add_score, get_leaderboard
-    except ImportError:
-        from firebase_db import add_score, get_leaderboard
 
     if request.method == "POST":
         data = request.json or {}
@@ -169,4 +201,4 @@ def manage_leaderboard():
 # =========================
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, debug=True)

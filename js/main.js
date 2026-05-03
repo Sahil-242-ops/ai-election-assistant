@@ -1,28 +1,91 @@
 // Auth Logic
         function checkAuth() {
-            let user = localStorage.getItem('electionUser');
-            if (user) {
+            let userRaw = localStorage.getItem('electionUser');
+            if (userRaw) {
+                let user = JSON.parse(userRaw);
                 document.getElementById('login-btn').style.display = 'none';
                 document.getElementById('user-profile').style.display = 'flex';
-                document.getElementById('user-name-display').innerText = user;
+                document.getElementById('user-name-display').innerText = user.name;
+                
+                // Update tooltip info
+                const tooltip = document.getElementById('user-detail-info');
+                if (tooltip) {
+                    tooltip.innerHTML = `
+                        <div style="font-weight:700;color:white;margin-bottom:4px">${user.name}</div>
+                        ${user.email ? `<div style="margin-bottom:8px">${user.email}</div>` : ''}
+                        <div style="display:flex;justify-content:space-between">
+                            <span>Age: ${user.age || 'Not set'}</span>
+                            <span>State: ${user.state || 'Not set'}</span>
+                        </div>
+                    `;
+                }
             } else {
                 document.getElementById('login-btn').style.display = 'flex';
                 document.getElementById('user-profile').style.display = 'none';
             }
         }
 
-        function openModal() { document.getElementById('auth-modal').classList.add('active'); }
+        function showUserDetail(show) {
+            const tooltip = document.getElementById('user-detail-tooltip');
+            if (tooltip) tooltip.style.display = show ? 'block' : 'none';
+        }
+
+        function openModal() { 
+            document.getElementById('auth-step-login').style.display = 'block';
+            document.getElementById('auth-step-profile').style.display = 'none';
+            document.getElementById('auth-modal').classList.add('active'); 
+        }
         function closeModal() { document.getElementById('auth-modal').classList.remove('active'); }
 
         function login() {
             let name = document.getElementById('auth-name').value.trim();
             if (!name) return alert("Please enter your name.");
-            localStorage.setItem('electionUser', name);
+            
+            let user = { name: name, method: 'local' };
+            localStorage.setItem('electionUser', JSON.stringify(user));
+            
+            // Show profile step
+            document.getElementById('auth-step-login').style.display = 'none';
+            document.getElementById('auth-step-profile').style.display = 'block';
+        }
+
+        function googleLogin() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider).then((result) => {
+                const user = result.user;
+                const userData = {
+                    name: user.displayName,
+                    email: user.email,
+                    photo: user.photoURL,
+                    method: 'google'
+                };
+                localStorage.setItem('electionUser', JSON.stringify(userData));
+                
+                // Show profile step
+                document.getElementById('auth-step-login').style.display = 'none';
+                document.getElementById('auth-step-profile').style.display = 'block';
+            }).catch(err => {
+                console.error("Google Login Error:", err);
+                alert("Login failed. Please try again.");
+            });
+        }
+
+        function saveProfile() {
+            let userRaw = localStorage.getItem('electionUser');
+            if (!userRaw) return closeModal();
+            
+            let user = JSON.parse(userRaw);
+            user.age = document.getElementById('auth-age').value;
+            user.state = document.getElementById('auth-state').value;
+            
+            localStorage.setItem('electionUser', JSON.stringify(user));
+            alert("Profile setup complete!");
             closeModal();
             checkAuth();
         }
 
         function logout() {
+            auth.signOut();
             localStorage.removeItem('electionUser');
             checkAuth();
         }
@@ -31,11 +94,17 @@
         function switchSection(sectionId, event) {
             document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            document.getElementById('section-' + sectionId).classList.add('active');
+            const target = document.getElementById('section-' + sectionId);
+            if (target) target.classList.add('active');
             if (event) { event.currentTarget.classList.add('active'); }
+            
+            // Feature specific inits
             if (sectionId === 'map' && !window._eciMapInited) {
                 window._eciMapInited = true;
                 setTimeout(initECIMap, 150);
+            }
+            if (sectionId === 'charts') {
+                setTimeout(loadElectionCharts, 200);
             }
         }
 
@@ -167,24 +236,47 @@
             askBtn.style.pointerEvents = "none";
 
             try {
+                const userRaw = localStorage.getItem('electionUser');
+                const user = userRaw ? JSON.parse(userRaw) : null;
+
                 let res = await fetch("/ask", {
                     method: "POST",
                     headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify({question: q})
+                    body: JSON.stringify({
+                        question: q,
+                        user: user
+                    })
                 });
 
                 let data = await res.json();
+                let answer = data.answer;
+
+                // Translate if non-English selected
+                if (window._responseLang && window._responseLang !== 'en') {
+                    try {
+                        let tr = await fetch("/api/translate", {
+                            method: "POST",
+                            headers: {"Content-Type": "application/json"},
+                            body: JSON.stringify({text: answer, lang: window._responseLang})
+                        });
+                        let tdata = await tr.json();
+                        answer = tdata.translated || answer;
+                    } catch(e) { /* fallback to English */ }
+                }
 
                 // Format markdown response
                 if (window.marked) {
-                    resBox.innerHTML = marked.parse(data.answer);
+                    resBox.innerHTML = marked.parse(answer);
                 } else {
-                    resBox.innerText = data.answer;
+                    resBox.innerText = answer;
                 }
                 
                 // UI State: Done
                 loader.style.display = "none";
                 resContainer.style.display = "block";
+
+                // GA4 event tracking
+                if (window.fbAnalytics) fbAnalytics.logEvent('question_asked', {lang: window._responseLang || 'en'});
                 
             } catch (error) {
                 loader.style.display = "none";
@@ -193,6 +285,60 @@
             } finally {
                 askBtn.style.opacity = "1";
                 askBtn.style.pointerEvents = "auto";
+            }
+        }
+        
+        function copyResponse() {
+            const text = document.getElementById('response').innerText;
+            if (!text) return;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById('copy-btn');
+                const oldText = btn.innerHTML;
+                btn.innerHTML = '✅ Copied';
+                setTimeout(() => btn.innerHTML = oldText, 2000);
+            });
+        }
+
+        async function speakResponse() {
+            const text = document.getElementById('response').innerText;
+            if (!text) return;
+
+            const btn = document.getElementById('listen-btn');
+            const oldText = btn.innerHTML;
+            btn.innerHTML = '⌛ Generating...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch("/api/speak", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({
+                        text: text,
+                        lang: window._responseLang === 'hi' ? 'hi-IN' : 'en-IN'
+                    })
+                });
+
+                if (!res.ok) throw new Error("TTS failed");
+
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const audio = new Audio(url);
+                
+                audio.onplay = () => { btn.innerHTML = '🔊 Playing...'; };
+                audio.onended = () => { 
+                    btn.innerHTML = oldText; 
+                    btn.disabled = false;
+                    URL.revokeObjectURL(url);
+                };
+                
+                audio.play();
+            } catch (error) {
+                console.error("TTS Error:", error);
+                btn.innerHTML = '❌ Error';
+                setTimeout(() => {
+                    btn.innerHTML = oldText;
+                    btn.disabled = false;
+                }, 2000);
             }
         }
 
@@ -228,24 +374,29 @@
             const htmlRoot = document.getElementById('html-root');
             htmlRoot.setAttribute('lang', currentLang === 'hi' ? 'hi' : 'en');
 
+            // Sync AI Assistant language with global language
+            window._responseLang = currentLang;
+            // Update active state of language buttons in chat bar
+            document.querySelectorAll('.chat-lang-btn').forEach(b => {
+                const bLang = b.getAttribute('onclick').match(/'([^']+)'/)[1];
+                if (bLang === currentLang) b.classList.add('active');
+                else b.classList.remove('active');
+            });
+
             // Update lang toggle label
             document.getElementById('lang-label').innerText = t.langLabel;
-
             // Update placeholder
             const qInput = document.getElementById('question');
             if (qInput) qInput.placeholder = t.placeholder;
-
             // Update nav items
             const navItems = document.querySelectorAll('.nav-item');
             const navKeys = ['navHome','navVoter','navEdu','navTimeline','navAI','navQuiz'];
             navItems.forEach((el, i) => { if (navKeys[i]) el.innerText = t[navKeys[i]]; });
-
             // Update hero heading & subtitle
             const h1 = document.querySelector('#section-home h1');
             const sub = document.querySelector('#section-home .header > p');
             if (h1) h1.innerText = t.h1;
             if (sub) sub.innerText = t.heroSub;
-
             // Update ask button
             const askSpan = document.querySelector('#ask-btn span');
             if (askSpan) askSpan.innerText = t.askBtn;
@@ -575,6 +726,28 @@
         // ============================================================
         // INIT — run all feature inits on page load
         // ============================================================
+        function initializeAllFeatures() {
+            renderScenarios();
+            checkAuth();
+            
+            // Google Charts Init
+            if (window.google) {
+                google.charts.load('current', {'packages':['corechart', 'bar']});
+                google.charts.setOnLoadCallback(() => {
+                    window._chartsReady = true;
+                    console.log("📈 Google Charts API Loaded.");
+                });
+            }
+            
+            // Theme Init
+            if (localStorage.getItem('darkMode') === '1') {
+                document.body.classList.add('dark-mode');
+                const btn = document.getElementById('dark-mode-btn');
+                if (btn) btn.textContent = '☀️';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initializeAllFeatures);
         window.addEventListener('load', function() {
             checkAuth();
             renderReadiness();
@@ -725,6 +898,8 @@
             }
             const recognition = new SpeechRecognition();
             const voiceBtn = document.getElementById('voice-btn');
+            const qInput = document.getElementById('question');
+            
             const langMap = {'en': 'en-IN', 'hi': 'hi-IN', 'ta': 'ta-IN', 'bn': 'bn-IN'};
             recognition.lang = langMap[window._responseLang || 'en'] || 'en-IN';
             recognition.interimResults = false;
@@ -737,18 +912,32 @@
 
             recognition.onresult = (event) => {
                 const transcript = event.results[0][0].transcript;
-                document.getElementById('question').value = transcript;
+                console.log('Voice result received:', transcript);
+                if (qInput) {
+                    qInput.value = transcript;
+                    // Force the value to update and trigger any listeners
+                    qInput.setAttribute('value', transcript);
+                    qInput.dispatchEvent(new Event('input', { bubbles: true }));
+                } else {
+                    console.error('Question input element not found!');
+                }
                 voiceBtn.textContent = '🎙️';
                 voiceBtn.style.animation = '';
-                // GA4 event
                 if (window.fbAnalytics) fbAnalytics.logEvent('voice_input_used');
-                ask();
+                
+                // Final verification of text before asking
+                if (qInput.value.length > 0) {
+                    setTimeout(ask, 400);
+                } else {
+                    console.warn('Transcript was empty or not assigned correctly.');
+                }
             };
 
             recognition.onerror = (event) => {
+                console.error('Speech recognition error', event.error);
                 voiceBtn.textContent = '🎙️';
                 voiceBtn.style.animation = '';
-                if (event.error === 'not-allowed') alert('Microphone permission denied. Please allow microphone access.');
+                if (event.error === 'not-allowed') alert('Microphone permission denied.');
             };
 
             recognition.onend = () => {
@@ -809,67 +998,9 @@
             window._responseLang = lang;
             document.querySelectorAll('.chat-lang-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-        }
-
-        // Override ask() to support translation
-        const _originalAsk = ask;
-        async function ask() {
-            let qInput = document.getElementById("question");
-            let q = qInput.value.trim();
-            if (!q) return;
-
-            let loader = document.getElementById("loader");
-            let resContainer = document.getElementById("response-container");
-            let resBox = document.getElementById("response");
-            let askBtn = document.getElementById("ask-btn");
-
-            resContainer.style.display = "none";
-            loader.style.display = "flex";
-            askBtn.style.opacity = "0.7";
-            askBtn.style.pointerEvents = "none";
-
-            try {
-                let res = await fetch("/ask", {
-                    method: "POST",
-                    headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify({question: q})
-                });
-                let data = await res.json();
-                let answer = data.answer;
-
-                // Translate if non-English selected
-                if (window._responseLang && window._responseLang !== 'en') {
-                    try {
-                        let tr = await fetch("/api/translate", {
-                            method: "POST",
-                            headers: {"Content-Type": "application/json"},
-                            body: JSON.stringify({text: answer, lang: window._responseLang})
-                        });
-                        let tdata = await tr.json();
-                        answer = tdata.translated || answer;
-                    } catch(e) { /* fallback to English */ }
-                }
-
-                if (window.marked) {
-                    resBox.innerHTML = marked.parse(answer);
-                } else {
-                    resBox.innerText = answer;
-                }
-
-                loader.style.display = "none";
-                resContainer.style.display = "block";
-
-                // GA4 event tracking
-                if (window.fbAnalytics) fbAnalytics.logEvent('question_asked', {lang: window._responseLang});
-
-            } catch (error) {
-                loader.style.display = "none";
-                resContainer.style.display = "block";
-                resBox.innerHTML = "<p style='color: #ef4444;'>An error occurred while connecting to the assistant.</p>";
-            } finally {
-                askBtn.style.opacity = "1";
-                askBtn.style.pointerEvents = "auto";
-            }
+            
+            // Also update the global recognition language if it's currently active
+            console.log(`AI Assistant language set to: ${lang}`);
         }
 
         // ============================================================
@@ -884,10 +1015,10 @@
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 if (window.fbAnalytics) fbAnalytics.logEvent('quiz_completed', {score: score});
-                return True;
+                return true;
             } catch(e) {
-                console.warn('Firestore save failed, falling back to backend API', e);
-                return False;
+                console.warn('Firestore save failed', e);
+                return false;
             }
         }
 
@@ -903,7 +1034,6 @@
             }
         }
 
-        // Expose globally for quiz page to use
         window.saveScoreToFirestore = saveScoreToFirestore;
         window.getFirestoreLeaderboard = getFirestoreLeaderboard;
 
@@ -911,88 +1041,93 @@
         // 📊 GOOGLE CHARTS — Election Data Visualization
         // ============================================================
         function loadElectionCharts() {
-            if (!window._chartsReady) {
-                setTimeout(loadElectionCharts, 300);
+            if (!window._chartsReady || !google.visualization) {
+                console.warn("Charts not ready yet, retrying...");
+                setTimeout(loadElectionCharts, 500);
                 return;
             }
 
-            // 1. Voter Turnout Bar Chart
-            const turnoutData = google.visualization.arrayToDataTable([
-                ['State', 'Turnout (%)', { role: 'style' }],
-                ['Tripura', 89.1, '#FF6B35'],
-                ['Sikkim', 82.3, '#FF6B35'],
-                ['Manipur', 80.1, '#FF6B35'],
-                ['W. Bengal', 79.2, '#FF9500'],
-                ['Lakshadweep', 77.8, '#FF9500'],
-                ['Nagaland', 77.1, '#FF9500'],
-                ['Assam', 75.4, '#138808'],
-                ['Mizoram', 73.2, '#138808'],
-                ['Kerala', 71.3, '#138808'],
-                ['National Avg', 66.1, '#000080'],
-            ]);
-            new google.visualization.BarChart(document.getElementById('chart-turnout')).draw(
-                turnoutData,
-                {backgroundColor: 'transparent', legend: {position: 'none'},
-                 hAxis: {title: 'Voter Turnout (%)', minValue: 0, maxValue: 100, textStyle:{color:'#555'}},
-                 vAxis: {textStyle:{color:'#444'}}, chartArea:{width:'60%', height:'80%'}}
-            );
+            try {
+                // 1. Voter Turnout Bar Chart
+                const turnoutData = google.visualization.arrayToDataTable([
+                    ['State', 'Turnout (%)', { role: 'style' }],
+                    ['Tripura', 89.1, '#FF6B35'],
+                    ['Sikkim', 82.3, '#FF6B35'],
+                    ['Manipur', 80.1, '#FF6B35'],
+                    ['W. Bengal', 79.2, '#FF9500'],
+                    ['Lakshadweep', 77.8, '#FF9500'],
+                    ['Nagaland', 77.1, '#FF9500'],
+                    ['Assam', 75.4, '#138808'],
+                    ['National Avg', 66.1, '#000080'],
+                ]);
+                new google.visualization.BarChart(document.getElementById('chart-turnout')).draw(
+                    turnoutData,
+                    {backgroundColor: 'transparent', legend: {position: 'none'},
+                     hAxis: {title: 'Voter Turnout (%)', minValue: 0, maxValue: 100, textStyle:{color:'#94a3b8'}},
+                     vAxis: {textStyle:{color:'#94a3b8'}}, chartArea:{width:'70%', height:'80%'}}
+                );
 
-            // 2. Lok Sabha Seats Pie Chart
-            const seatsData = google.visualization.arrayToDataTable([
-                ['Region', 'Seats'],
-                ['North India', 225],
-                ['South India', 130],
-                ['East India', 120],
-                ['West India', 68],
-            ]);
-            new google.visualization.PieChart(document.getElementById('chart-seats')).draw(
-                seatsData,
-                {backgroundColor: 'transparent', pieHole: 0.4,
-                 colors: ['#FF6B35','#138808','#000080','#FF9500'],
-                 legend: {position: 'bottom', textStyle:{color:'#555'}},
-                 chartArea:{width:'85%', height:'80%'}}
-            );
+                // 2. Lok Sabha Seats Pie Chart
+                const seatsData = google.visualization.arrayToDataTable([
+                    ['Region', 'Seats'],
+                    ['North India', 225],
+                    ['South India', 130],
+                    ['East India', 120],
+                    ['West India', 68],
+                ]);
+                new google.visualization.PieChart(document.getElementById('chart-seats')).draw(
+                    seatsData,
+                    {backgroundColor: 'transparent', pieHole: 0.4,
+                     colors: ['#FF6B35','#138808','#000080','#FF9500'],
+                     legend: {position: 'bottom', textStyle:{color:'#94a3b8'}},
+                     chartArea:{width:'90%', height:'80%'}}
+                );
 
-            // 3. Voter Registration Growth Line Chart
-            const growthData = google.visualization.arrayToDataTable([
-                ['Year', 'Voters (Millions)'],
-                ['2004', 671],
-                ['2009', 714],
-                ['2014', 814],
-                ['2019', 896],
-                ['2024', 969],
-            ]);
-            new google.visualization.LineChart(document.getElementById('chart-growth')).draw(
-                growthData,
-                {backgroundColor: 'transparent', colors: ['#138808'],
-                 legend: {position: 'none'},
-                 vAxis: {title: 'Voters (Millions)', textStyle:{color:'#555'}},
-                 hAxis: {textStyle:{color:'#555'}},
-                 chartArea:{width:'75%', height:'75%'}}
-            );
+                // 3. Voter Registration Growth Line Chart
+                const growthData = google.visualization.arrayToDataTable([
+                    ['Year', 'Voters (Millions)'],
+                    ['2004', 671],
+                    ['2009', 714],
+                    ['2014', 814],
+                    ['2019', 896],
+                    ['2024', 969],
+                ]);
+                new google.visualization.LineChart(document.getElementById('chart-growth')).draw(
+                    growthData,
+                    {backgroundColor: 'transparent', colors: ['#138808'],
+                     legend: {position: 'none'},
+                     vAxis: {title: 'Voters (Millions)', textStyle:{color:'#94a3b8'}},
+                     hAxis: {textStyle:{color:'#94a3b8'}},
+                     chartArea:{width:'80%', height:'75%'}}
+                );
 
-            // 4. Demographics Donut Chart
-            const demoData = google.visualization.arrayToDataTable([
-                ['Category', 'Count (Millions)'],
-                ['Male Voters', 497],
-                ['Female Voters', 471],
-                ['Third Gender', 1],
-            ]);
-            new google.visualization.PieChart(document.getElementById('chart-demo')).draw(
-                demoData,
-                {backgroundColor: 'transparent', pieHole: 0.5,
-                 colors: ['#3b82f6','#ec4899','#8b5cf6'],
-                 legend: {position: 'bottom', textStyle:{color:'#555'}},
-                 chartArea:{width:'85%', height:'75%'}}
-            );
-        }
-
-        // Trigger charts when DATA section is opened
-        const _origSwitchSection = switchSection;
-        function switchSection(sectionId, event) {
-            _origSwitchSection(sectionId, event);
-            if (sectionId === 'charts') {
-                setTimeout(loadElectionCharts, 200);
+                // 4. Demographics Donut Chart
+                const demoData = google.visualization.arrayToDataTable([
+                    ['Category', 'Count (Millions)'],
+                    ['Male Voters', 497],
+                    ['Female Voters', 471],
+                    ['Third Gender', 1],
+                ]);
+                new google.visualization.PieChart(document.getElementById('chart-demo')).draw(
+                    demoData,
+                    {backgroundColor: 'transparent', pieHole: 0.5,
+                     colors: ['#3b82f6','#ec4899','#8b5cf6'],
+                     legend: {position: 'bottom', textStyle:{color:'#94a3b8'}},
+                     chartArea:{width:'90%', height:'75%'}}
+                );
+            } catch (err) {
+                console.error("Chart rendering error:", err);
             }
         }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateModule();
+            checkAuth();
+            if (localStorage.getItem('darkMode') === '1') {
+                document.body.classList.add('dark-mode');
+                const btn = document.getElementById('dark-mode-btn');
+                if (btn) btn.textContent = '☀️';
+            }
+        });
 

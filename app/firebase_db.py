@@ -8,6 +8,11 @@ db = None
 def init_firebase():
     global db
     try:
+        # Check if already initialized
+        if firebase_admin._apps:
+            db = firestore.client()
+            return
+
         # Check for service account key file
         key_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "firebase-key.json")
         
@@ -15,11 +20,11 @@ def init_firebase():
             cred = credentials.Certificate(key_path)
             firebase_admin.initialize_app(cred)
             db = firestore.client()
-            print("🔥 Firebase Admin SDK initialized successfully.")
+            print("Firebase Admin SDK initialized successfully.")
         else:
-            print("⚠️ firebase-key.json not found. Using in-memory fallback.")
+            print("firebase-key.json not found. Using in-memory fallback.")
     except Exception as e:
-        print(f"❌ Firebase init failed: {e}")
+        print(f"Firebase init failed: {e}")
 
 def add_score(name, score):
     """Add a score to Firestore."""
@@ -33,6 +38,21 @@ def add_score(name, score):
             return True
         except Exception as e:
             print(f"❌ Firestore write error: {e}")
+    return False
+
+def save_chat_history(user_name, question, answer):
+    """Save AI chat interaction to Firestore."""
+    if db:
+        try:
+            db.collection("chat_history").add({
+                "user": user_name,
+                "question": question,
+                "answer": answer,
+                "timestamp": firestore.SERVER_TIMESTAMP
+            })
+            return True
+        except Exception as e:
+            print(f"Firestore chat log error: {e}")
     return False
 
 def get_leaderboard():

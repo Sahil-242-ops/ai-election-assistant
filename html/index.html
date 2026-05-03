@@ -23,8 +23,24 @@
 
     <!-- Firebase SDK (compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
+    
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyCjpWS6vuJ5_oRupV-ECpvAFmH3gbMM22A",
+        authDomain: "ai-election-process-guide.firebaseapp.com",
+        projectId: "ai-election-process-guide",
+        storageBucket: "ai-election-process-guide.firebasestorage.app",
+        messagingSenderId: "1002796016019",
+        appId: "1:1002796016019:web:92f97a87c92a996eba0866",
+        measurementId: "G-0GL5P99SQV"
+      };
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const analytics = firebase.analytics();
+    </script>
 </head>
 <body>
     <nav class="main-navbar">
@@ -53,9 +69,12 @@
                 user
             </button>
             <div class="user-profile" id="user-profile">
-                <div class="user-pill">
+                <div class="user-pill" style="position: relative;" onmouseover="showUserDetail(true)" onmouseout="showUserDetail(false)">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                     <span id="user-name-display">user</span>
+                    <div id="user-detail-tooltip" style="display: none; position: absolute; top: 100%; right: 0; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 0.8rem; width: 180px; font-size: 0.75rem; color: #94a3b8; box-shadow: 0 10px 25px rgba(0,0,0,0.4); z-index: 1001; margin-top: 10px;">
+                        <div id="user-detail-info">Loading...</div>
+                    </div>
                 </div>
                 <div class="logout-icon" onclick="logout()" title="Logout">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
@@ -328,26 +347,48 @@
         <div class="content-section" id="section-charts">
             <div class="charts-container">
                 <div class="section-header-center">
-                    <h2>📊 India Election Data</h2>
-                    <p>Visual insights into Indian election statistics — powered by Google Charts</p>
+                    <div class="premium-badge">LIVE STATISTICS</div>
+                    <h2>📊 India Election Data Insights</h2>
+                    <p>Visualizing the pulse of the world's largest democracy using real-time data visualizations.</p>
                 </div>
+                
                 <div class="charts-grid">
                     <div class="chart-card">
-                        <h3>🗳️ Voter Turnout by State (2024)</h3>
-                        <div id="chart-turnout" style="width:100%;height:320px;"></div>
+                        <div class="chart-info">
+                            <div class="chart-icon">🗳️</div>
+                            <h3>Voter Turnout Analysis</h3>
+                        </div>
+                        <div id="chart-turnout" class="chart-box"></div>
+                        <p class="chart-desc">High turnout states (2024 Phase 1-4) showcasing active democratic participation.</p>
                     </div>
                     <div class="chart-card">
-                        <h3>🏛️ Lok Sabha Seats Distribution</h3>
-                        <div id="chart-seats" style="width:100%;height:320px;"></div>
+                        <div class="chart-info">
+                            <div class="chart-icon">🏛️</div>
+                            <h3>Regional Seat Distribution</h3>
+                        </div>
+                        <div id="chart-seats" class="chart-box"></div>
+                        <p class="chart-desc">Comparative analysis of Lok Sabha seats across geographical regions.</p>
                     </div>
                     <div class="chart-card">
-                        <h3>📈 Voter Registration Growth</h3>
-                        <div id="chart-growth" style="width:100%;height:320px;"></div>
+                        <div class="chart-info">
+                            <div class="chart-icon">📈</div>
+                            <h3>Electoral Roll Growth</h3>
+                        </div>
+                        <div id="chart-growth" class="chart-box"></div>
+                        <p class="chart-desc">Steady increase in registered voters over the last two decades (Millions).</p>
                     </div>
                     <div class="chart-card">
-                        <h3>👥 Voter Demographics</h3>
-                        <div id="chart-demo" style="width:100%;height:320px;"></div>
+                        <div class="chart-info">
+                            <div class="chart-icon">👥</div>
+                            <h3>Gender Demographics</h3>
+                        </div>
+                        <div id="chart-demo" class="chart-box"></div>
+                        <p class="chart-desc">Breakdown of the electorate by gender identity (2024 estimates).</p>
                     </div>
+                </div>
+
+                <div class="data-footer">
+                    <p>✨ Charts powered by Google Charts API & ECI Public Data</p>
                 </div>
             </div>
         </div>
@@ -508,11 +549,72 @@
     <div class="modal-overlay" id="auth-modal">
         <div class="modal-content">
             <button class="close-modal" onclick="closeModal()">×</button>
-            <h2 class="modal-title">Welcome</h2>
-            <p style="text-align: center; color: var(--text-muted); margin-bottom: 2rem;">Sign in to access personalized election insights.</p>
-            <input type="text" id="auth-name" class="auth-input" placeholder="Your Name" />
-            <input type="email" id="auth-email" class="auth-input" placeholder="Email Address" />
-            <button class="auth-submit" style="background: linear-gradient(135deg, var(--primary), #7c3aed); color: white; font-weight: 600; border: none; cursor: pointer; transition: transform 0.2s;" onclick="login()">Continue</button>
+            <div id="auth-step-login">
+                <h2 class="modal-title">Sign In</h2>
+                <p style="text-align: center; color: var(--text-muted); margin-bottom: 1.5rem;">Access personalized election insights.</p>
+                
+                <button onclick="googleLogin()" class="google-btn" style="width: 100%; padding: 0.8rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: white; color: #333; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; margin-bottom: 1rem; transition: background 0.2s;">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" height="18" alt="Google">
+                    Continue with Google
+                </button>
+                
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; color: var(--text-muted); font-size: 0.8rem;">
+                    <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.1);"></div>
+                    OR
+                    <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.1);"></div>
+                </div>
+
+                <input type="text" id="auth-name" class="auth-input" placeholder="Your Name" />
+                <button class="auth-submit" style="background: linear-gradient(135deg, var(--primary), #7c3aed); color: white; font-weight: 600; border: none; cursor: pointer; width: 100%; padding: 1rem; border-radius: 12px;" onclick="login()">Continue</button>
+            </div>
+            
+            <div id="auth-step-profile" style="display: none;">
+                <h2 class="modal-title">Complete Profile</h2>
+                <p style="text-align: center; color: var(--text-muted); margin-bottom: 1.5rem;">Tell us a bit more to get better AI advice.</p>
+                <div style="display: flex; gap: 10px; margin-bottom: 1rem;">
+                    <input type="number" id="auth-age" class="auth-input" placeholder="Age" style="margin-bottom: 0;" />
+                    <select id="auth-state" class="auth-input" style="margin-bottom: 0; padding: 0.5rem; flex: 2;">
+                        <option value="">Select State/UT</option>
+                        <option value="Andhra Pradesh">Andhra Pradesh</option>
+                        <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                        <option value="Assam">Assam</option>
+                        <option value="Bihar">Bihar</option>
+                        <option value="Chhattisgarh">Chhattisgarh</option>
+                        <option value="Goa">Goa</option>
+                        <option value="Gujarat">Gujarat</option>
+                        <option value="Haryana">Haryana</option>
+                        <option value="Himachal Pradesh">Himachal Pradesh</option>
+                        <option value="Jharkhand">Jharkhand</option>
+                        <option value="Karnataka">Karnataka</option>
+                        <option value="Kerala">Kerala</option>
+                        <option value="Madhya Pradesh">Madhya Pradesh</option>
+                        <option value="Maharashtra">Maharashtra</option>
+                        <option value="Manipur">Manipur</option>
+                        <option value="Meghalaya">Meghalaya</option>
+                        <option value="Mizoram">Mizoram</option>
+                        <option value="Nagaland">Nagaland</option>
+                        <option value="Odisha">Odisha</option>
+                        <option value="Punjab">Punjab</option>
+                        <option value="Rajasthan">Rajasthan</option>
+                        <option value="Sikkim">Sikkim</option>
+                        <option value="Tamil Nadu">Tamil Nadu</option>
+                        <option value="Telangana">Telangana</option>
+                        <option value="Tripura">Tripura</option>
+                        <option value="Uttar Pradesh">Uttar Pradesh</option>
+                        <option value="Uttarakhand">Uttarakhand</option>
+                        <option value="West Bengal">West Bengal</option>
+                        <option value="Andaman & Nicobar">Andaman & Nicobar</option>
+                        <option value="Chandigarh">Chandigarh</option>
+                        <option value="Dadra & NH">Dadra & NH</option>
+                        <option value="Delhi">Delhi</option>
+                        <option value="Jammu & Kashmir">Jammu & Kashmir</option>
+                        <option value="Ladakh">Ladakh</option>
+                        <option value="Lakshadweep">Lakshadweep</option>
+                        <option value="Puducherry">Puducherry</option>
+                    </select>
+                </div>
+                <button class="auth-submit" style="background: linear-gradient(135deg, #10b981, #059669); color: white; font-weight: 600; border: none; cursor: pointer; width: 100%; padding: 1rem; border-radius: 12px;" onclick="saveProfile()">Save & Finish</button>
+            </div>
         </div>
     </div>
 

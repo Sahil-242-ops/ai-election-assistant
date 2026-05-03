@@ -1,8 +1,8 @@
 __pycache__/
 *.pyc
+*.pyo
 .pytest_cache/
 .coverage
 .env
 firebase-key.json
-reas.md
-readme1.md
+*.log
