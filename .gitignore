@@ -3,3 +3,6 @@ __pycache__/
 .pytest_cache/
 .coverage
 .env
+firebase-key.json
+reas.md
+readme1.md

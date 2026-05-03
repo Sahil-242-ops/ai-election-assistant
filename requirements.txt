@@ -2,3 +2,4 @@ Flask
 google-genai
 flask-limiter
 pytest
+firebase-admin

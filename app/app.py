@@ -78,9 +78,42 @@ def ask():
     if not sanitized or len(sanitized) > 200:
         return jsonify({"answer": "Invalid input. Please keep your question between 1 and 200 characters."})
 
-    # 🚀 Use service layer (Step 1)
+    # 🚀 Use service layer
     answer = process_query(sanitized)
     return jsonify({"answer": answer})
+
+
+@app.route("/api/translate", methods=["POST"])
+@limiter.limit("20 per minute")
+def translate():
+    """🌐 Google Gemini-powered translation endpoint."""
+    data = request.json or {}
+    text = html.escape(str(data.get("text", "")).strip())
+    target_lang = data.get("lang", "hi")
+
+    if not text or len(text) > 500:
+        return jsonify({"translated": text})
+
+    lang_names = {"hi": "Hindi", "ta": "Tamil", "bn": "Bengali", "te": "Telugu"}
+    lang_name = lang_names.get(target_lang, "Hindi")
+
+    try:
+        from app.ai_logic import ai_engine
+    except ImportError:
+        from ai_logic import ai_engine
+
+    if not ai_engine.client:
+        return jsonify({"translated": text})
+
+    try:
+        prompt = f"Translate the following election-related text to {lang_name}. Return ONLY the translated text, nothing else:\n\n{text}"
+        response = ai_engine.client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt
+        )
+        return jsonify({"translated": response.text.strip()})
+    except Exception:
+        return jsonify({"translated": text})
 
 
 @app.route("/api/questions", methods=["GET"])
@@ -103,16 +136,32 @@ def check_answer():
 @app.route("/api/leaderboard", methods=["GET", "POST"])
 def manage_leaderboard():
     global leaderboard_data
+    try:
+        from app.firebase_db import add_score, get_leaderboard
+    except ImportError:
+        from firebase_db import add_score, get_leaderboard
+
     if request.method == "POST":
         data = request.json or {}
         name = data.get("name", "Anonymous").strip()[:20]
         score = data.get("score", 0)
+        
         if name:
+            # Try Firebase first
+            add_score(name, score)
+            
+            # Local fallback (for in-memory tracking if Firebase fails)
             leaderboard_data.append({"name": name, "score": score})
             leaderboard_data.sort(key=lambda x: x["score"], reverse=True)
             leaderboard_data = leaderboard_data[:10]
+            
         return jsonify({"success": True})
     
+    # Try getting from Firebase
+    fb_leaderboard = get_leaderboard()
+    if fb_leaderboard is not None:
+        return jsonify(fb_leaderboard)
+        
     return jsonify(leaderboard_data)
 
 # =========================

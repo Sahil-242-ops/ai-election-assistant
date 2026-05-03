@@ -7,7 +7,24 @@
     <title>AI Election Guide Assistant</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <link rel="stylesheet" href="/css/style.css?v=1.1">
+    <link rel="stylesheet" href="/css/style.css?v=2.0">
+
+    <!-- Google Analytics GA4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-0GL5P99SQV"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-0GL5P99SQV');
+    </script>
+
+    <!-- Google Charts -->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <!-- Firebase SDK (compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
 </head>
 <body>
     <nav class="main-navbar">
@@ -21,8 +38,11 @@
             <a class="nav-item" onclick="switchSection('evm', event)">EVM DEMO</a>
             <a class="nav-item" onclick="switchSection('scenarios', event)">SCENARIOS</a>
             <a class="nav-item" onclick="switchSection('map', event)">🗺️ MAP</a>
+            <a class="nav-item" onclick="switchSection('charts', event)">📊 DATA</a>
         </div>
         <div class="nav-actions">
+            <!-- Dark Mode Toggle -->
+            <button class="dark-mode-btn" id="dark-mode-btn" onclick="toggleDarkMode()" aria-label="Toggle dark mode" title="Toggle Dark Mode">🌙</button>
             <!-- Language Toggle -->
             <button class="lang-toggle-btn" id="lang-toggle-btn" onclick="toggleLanguage()" aria-label="Toggle language between English and Hindi" title="Switch Language">
                 🌐 <span id="lang-label">हिंदी</span>
@@ -183,7 +203,17 @@
         <!-- AI ASSISTANT SECTION -->
         <div class="content-section" id="section-ai-assistant">
             <div class="chat-card" style="margin-top: 0;">
+                <div class="chat-lang-bar">
+                    <span class="chat-lang-label">Response Language:</span>
+                    <button class="chat-lang-btn active" id="lang-btn-en" onclick="setResponseLang('en', this)">🇬🇧 English</button>
+                    <button class="chat-lang-btn" id="lang-btn-hi" onclick="setResponseLang('hi', this)">🇮🇳 हिंदी</button>
+                    <button class="chat-lang-btn" id="lang-btn-ta" onclick="setResponseLang('ta', this)">Tamil</button>
+                    <button class="chat-lang-btn" id="lang-btn-bn" onclick="setResponseLang('bn', this)">বাংলা</button>
+                </div>
                 <div class="input-group">
+                    <button class="voice-btn" id="voice-btn" onclick="startVoiceInput()" aria-label="Voice input - speak your question" title="Speak your question">
+                        🎙️
+                    </button>
                     <input
                         type="text"
                         id="question"
@@ -202,6 +232,14 @@
                 </div>
 
                 <div class="response-container" id="response-container">
+                    <div class="response-toolbar">
+                        <button class="listen-btn" id="listen-btn" onclick="speakResponse()" aria-label="Listen to response" title="Read answer aloud">
+                            🔊 Listen
+                        </button>
+                        <button class="copy-btn" id="copy-btn" onclick="copyResponse()" aria-label="Copy response" title="Copy answer">
+                            📋 Copy
+                        </button>
+                    </div>
                     <div id="response"></div>
                 </div>
             </div>
@@ -282,6 +320,34 @@
                     <button class="evm-btn-sec" id="evm-prev-btn" onclick="evmPrev()">← Back</button>
                     <span class="evm-step-label" id="evm-step-label">Step 1 of 6</span>
                     <button class="evm-btn-pri" id="evm-next-btn" onclick="evmNext()">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ELECTION DATA CHARTS SECTION -->
+        <div class="content-section" id="section-charts">
+            <div class="charts-container">
+                <div class="section-header-center">
+                    <h2>📊 India Election Data</h2>
+                    <p>Visual insights into Indian election statistics — powered by Google Charts</p>
+                </div>
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3>🗳️ Voter Turnout by State (2024)</h3>
+                        <div id="chart-turnout" style="width:100%;height:320px;"></div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>🏛️ Lok Sabha Seats Distribution</h3>
+                        <div id="chart-seats" style="width:100%;height:320px;"></div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>📈 Voter Registration Growth</h3>
+                        <div id="chart-growth" style="width:100%;height:320px;"></div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>👥 Voter Demographics</h3>
+                        <div id="chart-demo" style="width:100%;height:320px;"></div>
+                    </div>
                 </div>
             </div>
         </div>
