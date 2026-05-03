@@ -24,7 +24,7 @@ This project helps users understand the complete election journey — from regis
 
 ## 📸 Demo
 
-![AI Election Assistant](img/Demo.png)
+![AI Election Assistant](img/demo.png)
 
 ---
 
