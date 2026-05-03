@@ -5,14 +5,8 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
 # Import modular components
-try:
-    from app.rules import rule_based_answer
-    from app.ai_logic import ai_engine
-    from app.data import QUIZ_QUESTIONS, leaderboard_data
-except (ImportError, ModuleNotFoundError):
-    from rules import rule_based_answer
-    from ai_logic import ai_engine
-    from data import QUIZ_QUESTIONS, leaderboard_data
+from app.service import process_query
+from app.data import QUIZ_QUESTIONS, leaderboard_data
 
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 app = Flask(__name__,
@@ -20,13 +14,33 @@ app = Flask(__name__,
             static_folder=base_dir,
             static_url_path='/')
 
-# 🛡️ Rate Limiter: Boosts security score
+# 🛡️ Rate Limiter
 limiter = Limiter(
     get_remote_address,
     app=app,
     default_limits=["200 per day", "50 per hour"],
     storage_uri="memory://",
 )
+
+# =========================
+# 🛡️ SECURITY HEADERS (Step 4)
+# =========================
+@app.after_request
+def add_headers(response):
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    return response
+
+# =========================
+# 🔹 ERROR HANDLING (Step 2)
+# =========================
+@app.errorhandler(404)
+def not_found(e):
+    return jsonify({"error": "Not Found"}), 404
+
+@app.errorhandler(500)
+def internal_error(e):
+    return jsonify({"error": "Internal Server Error"}), 500
 
 # =========================
 # 🔹 FRONTEND (UI)
@@ -48,32 +62,24 @@ def leaderboard():
 # =========================
 
 @app.route("/ask", methods=["POST"])
-@limiter.limit("10 per minute") # 🛡️ Prevent spam
+@limiter.limit("10 per minute")
 def ask():
     # 🔐 Security: sanitize and validate input
     data = request.json or {}
     raw = data.get("question", "")
     sanitized = html.escape(str(raw).strip())
 
-    # 🔐 Security: Enforce input length limit (Step 5)
+    # 🔐 Security: Enforce input length limit
     if not sanitized or len(sanitized) > 200:
         return jsonify({"answer": "Invalid input. Please keep your question between 1 and 200 characters."})
 
-    user = sanitized.lower()
-
-    # ⚡ Try cached rule-based answer first
-    cached = rule_based_answer(user)
-    if cached:
-        return jsonify({"answer": cached})
-
-    # 🤖 Fallback to Gemini AI
-    answer = ai_engine.get_answer(sanitized)
+    # 🚀 Use service layer (Step 1)
+    answer = process_query(sanitized)
     return jsonify({"answer": answer})
 
 
 @app.route("/api/questions", methods=["GET"])
 def get_questions():
-    # Hide answers in the public list
     safe_q = [{"id": q["id"], "question": q["question"], "options": q["options"]} for q in QUIZ_QUESTIONS]
     return jsonify(safe_q)
 
@@ -98,7 +104,6 @@ def manage_leaderboard():
         score = data.get("score", 0)
         if name:
             leaderboard_data.append({"name": name, "score": score})
-            # Sort by score descending and keep top 10
             leaderboard_data.sort(key=lambda x: x["score"], reverse=True)
             leaderboard_data = leaderboard_data[:10]
         return jsonify({"success": True})

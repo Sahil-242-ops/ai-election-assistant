@@ -223,3 +223,9 @@ This project demonstrates how AI can simplify complex civic processes like elect
 ---
 
 🙌 **Author**: Sahil Bansal
+
+## ?? Project Structure
+
+- **app/** ? Backend logic (Modular service-based architecture)
+- **tests/** ? Comprehensive testing suite (98% coverage)
+- **html/css/js** ? Frontend UI with Indian Tricolor theme

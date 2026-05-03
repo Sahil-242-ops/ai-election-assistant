@@ -1,14 +1,5 @@
 __pycache__/
-*.py[cod]
-*$py.class
+*.pyc
 .pytest_cache/
 .coverage
 .env
-.venv
-venv/
-instance/
-*.db
-*.sqlite3
-.DS_Store
-.idea/
-.vscode/
