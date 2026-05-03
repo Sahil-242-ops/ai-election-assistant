@@ -5,9 +5,14 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
 # Import modular components
-from app.rules import rule_based_answer
-from app.ai_logic import ai_engine
-from app.data import QUIZ_QUESTIONS, leaderboard_data
+try:
+    from app.rules import rule_based_answer
+    from app.ai_logic import ai_engine
+    from app.data import QUIZ_QUESTIONS, leaderboard_data
+except (ImportError, ModuleNotFoundError):
+    from rules import rule_based_answer
+    from ai_logic import ai_engine
+    from data import QUIZ_QUESTIONS, leaderboard_data
 
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 app = Flask(__name__,
