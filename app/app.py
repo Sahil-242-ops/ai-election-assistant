@@ -5,8 +5,12 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
 # Import modular components
-from app.service import process_query
-from app.data import QUIZ_QUESTIONS, leaderboard_data
+try:
+    from app.service import process_query
+    from app.data import QUIZ_QUESTIONS, leaderboard_data
+except (ImportError, ModuleNotFoundError):
+    from service import process_query
+    from data import QUIZ_QUESTIONS, leaderboard_data
 
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 app = Flask(__name__,

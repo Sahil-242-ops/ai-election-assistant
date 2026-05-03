@@ -1,5 +1,9 @@
-from .rules import rule_based_answer
-from .ai_logic import ai_engine
+try:
+    from app.rules import rule_based_answer
+    from app.ai_logic import ai_engine
+except (ImportError, ModuleNotFoundError):
+    from rules import rule_based_answer
+    from ai_logic import ai_engine
 
 def process_query(sanitized_question: str):
     """Orchestrate rule-based matching and AI fallback."""
