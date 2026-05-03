@@ -41,6 +41,11 @@ By combining **Generative AI (Gemini)** with **Real-time Translation, Voice Synt
 - **Multi-language support**: Hindi, Tamil, Bengali, Telugu.
 - **Official SDK**: Uses the professional Google Cloud Translation engine for accuracy.
 
+## 🌍 Real-World Impact
+- Simplifies complex election processes for first-time voters
+- Improves accessibility through multilingual and voice support
+- Reduces confusion using AI-powered guidance and scenarios
+
 ### 🎙️ AI Voice Responses (Cloud Text-to-Speech)
 
 - **Neural Voice Synthesis**: High-quality audio responses in English and Hindi.
