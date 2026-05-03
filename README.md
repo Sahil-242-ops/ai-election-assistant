@@ -229,3 +229,10 @@ This project demonstrates how AI can simplify complex civic processes like elect
 - **app/** ? Backend logic (Modular service-based architecture)
 - **tests/** ? Comprehensive testing suite (98% coverage)
 - **html/css/js** ? Frontend UI with Indian Tricolor theme
+
+## ?? Security
+
+- **Input Validation**: Strictly enforced 200-character limits and HTML sanitization.
+- **Rate Limiting**: Integrated lask-limiter to protect against automated spam.
+- **Secure Headers**: Applied X-Content-Type-Options, X-Frame-Options, and X-XSS-Protection.
+- **Data Privacy**: No sensitive user data is stored or exposed.

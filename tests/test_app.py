@@ -139,3 +139,7 @@ def test_long_input(client):
 def test_invalid_method(client):
     res = client.get("/ask")
     assert res.status_code in [404, 405]
+
+def test_unknown_query(client):
+    res = client.post("/ask", data=json.dumps({"question": "random unknown text"}), content_type='application/json')
+    assert res.status_code == 200
