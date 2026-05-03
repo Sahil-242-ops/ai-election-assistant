@@ -1,2 +1,5 @@
 flask
 google-genai
+pytest
+pytest-cov
+requests

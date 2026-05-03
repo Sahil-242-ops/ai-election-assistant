@@ -1026,3 +1026,749 @@
 .tool-card:hover .explore-link {
     color: #2563eb;
 }
+
+/* ============================================================ */
+/* 🌐 LANGUAGE TOGGLE BUTTON                                    */
+/* ============================================================ */
+.lang-toggle-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    letter-spacing: 0.5px;
+}
+
+.lang-toggle-btn:hover {
+    background: rgba(79, 70, 229, 0.3);
+    border-color: rgba(79, 70, 229, 0.6);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+/* ===================================================== */
+/* SECTION HEADER (shared)                               */
+/* ===================================================== */
+.section-header-center { text-align: center; margin-bottom: 2rem; }
+.section-header-center h2 {
+    font-size: 2rem; font-weight: 700;
+    background: linear-gradient(to right, #a5b4fc, #c084fc);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 0.4rem;
+}
+.section-header-center p { color: var(--text-muted); font-size: 0.95rem; }
+
+/* ===================================================== */
+/* 🎯 VOTER READINESS SCORE                              */
+/* ===================================================== */
+.readiness-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 1.8rem 2rem;
+    width: 100%;
+    backdrop-filter: blur(12px);
+    margin-top: 2.5rem;
+}
+.readiness-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+.readiness-info h3 { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.3rem; }
+.readiness-info p  { color: var(--text-muted); font-size: 0.9rem; }
+.readiness-circle-wrap { position: relative; width: 90px; height: 90px; flex-shrink: 0; }
+.readiness-svg { width: 90px; height: 90px; }
+.readiness-pct {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: 800; font-size: 1rem; color: #a5b4fc;
+}
+.readiness-list { display: flex; flex-direction: column; gap: 0.7rem; }
+.readiness-item {
+    display: flex; align-items: center; gap: 0.9rem;
+    background: rgba(0,0,0,0.2); border: 1px solid var(--card-border);
+    border-radius: 12px; padding: 0.8rem 1rem;
+    cursor: pointer; transition: all 0.2s ease; user-select: none;
+}
+.readiness-item:hover { border-color: rgba(79,70,229,0.5); background: rgba(79,70,229,0.08); }
+.readiness-item.checked { border-color: rgba(16,185,129,0.5); background: rgba(16,185,129,0.08); }
+.readiness-checkbox {
+    width: 22px; height: 22px; border-radius: 6px;
+    border: 2px solid rgba(255,255,255,0.25); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; transition: all 0.2s ease;
+}
+.readiness-item.checked .readiness-checkbox { background: #10b981; border-color: #10b981; color: white; }
+.readiness-item-text { font-size: 0.95rem; }
+.readiness-item.checked .readiness-item-text { color: #86efac; }
+
+/* ===================================================== */
+/* 🖥️ EVM SIMULATOR                                      */
+/* ===================================================== */
+.evm-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding-bottom: 3rem;
+}
+/* Step track */
+.evm-progress-track {
+    display: flex; align-items: center;
+    justify-content: center; gap: 0; margin-bottom: 2.5rem;
+}
+.evm-dot {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem; font-weight: 700; color: var(--text-muted);
+    flex-shrink: 0; transition: all 0.3s ease; z-index: 1;
+    background: rgba(255,255,255,0.05);
+}
+.evm-dot.active { background: var(--primary); border-color: var(--primary); color: white; box-shadow: 0 0 12px rgba(79,70,229,0.6); }
+.evm-dot.done   { background: #10b981; border-color: #10b981; color: white; }
+.evm-line { flex: 1; height: 2px; background: rgba(255,255,255,0.1); transition: background 0.3s ease; max-width: 80px; }
+.evm-line.done  { background: #10b981; }
+
+/* Stage (content area) */
+.evm-stage {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 2rem;
+    min-height: 320px;
+    backdrop-filter: blur(12px);
+    animation: fadeIn 0.35s ease;
+    margin-bottom: 1.5rem;
+}
+/* Info step layout */
+.evm-step-info { text-align: center; }
+.evm-step-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+.evm-step-info h3 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.8rem; }
+.evm-step-info p  { color: var(--text-muted); line-height: 1.7; max-width: 540px; margin: 0 auto 1.2rem; }
+.evm-tip {
+    background: rgba(79,70,229,0.1); border: 1px solid rgba(79,70,229,0.3);
+    border-radius: 12px; padding: 0.8rem 1.2rem;
+    font-size: 0.9rem; color: #c7d2fe; text-align: left; margin-top: 1rem;
+}
+/* ID chips */
+.id-cards-grid { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; margin: 1rem 0; }
+.id-card-chip {
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 999px; padding: 0.4rem 0.9rem; font-size: 0.85rem;
+}
+/* Ink finger */
+.ink-finger-demo { margin: 1.2rem 0; }
+.ink-finger { display: inline-flex; flex-direction: column; align-items: center; gap: 0.3rem; }
+.finger-body { font-size: 3rem; }
+.ink-mark {
+    background: #1d4ed8; color: white; font-size: 0.6rem; font-weight: 800;
+    padding: 0.15rem 0.5rem; border-radius: 4px; letter-spacing: 1px;
+}
+.ink-caption { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem; }
+
+/* EVM Machine (the actual voting machine visual) */
+.evm-machine-wrapper { display: flex; flex-direction: column; align-items: center; }
+.evm-machine {
+    background: linear-gradient(170deg, #1e2235, #141726);
+    border: 2px solid #3a3f5c;
+    border-radius: 16px;
+    padding: 0;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
+    overflow: hidden;
+}
+.evm-machine-header {
+    background: linear-gradient(90deg, #1a237e, #283593);
+    padding: 0.9rem 1.5rem;
+    text-align: center;
+    border-bottom: 2px solid #e8a200;
+}
+.evm-machine-title { font-size: 0.75rem; font-weight: 800; letter-spacing: 2px; color: #ffd54f; }
+.evm-machine-subtitle { font-size: 0.6rem; letter-spacing: 1.5px; color: rgba(255,213,79,0.7); margin-top: 2px; }
+.evm-ballot-list { padding: 0.5rem 0; }
+.evm-ballot-row {
+    display: flex; align-items: center; gap: 0.8rem;
+    padding: 0.7rem 1.2rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    transition: background 0.2s ease;
+}
+.evm-ballot-row:last-child { border-bottom: none; }
+.evm-ballot-row.selected { background: rgba(79,70,229,0.12); }
+.evm-serial { width: 22px; font-size: 0.8rem; font-weight: 700; color: #94a3b8; flex-shrink: 0; }
+.evm-symbol {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; flex-shrink: 0;
+}
+.evm-candidate-info { flex: 1; min-width: 0; }
+.evm-candidate-name { font-size: 0.88rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.evm-party-name    { font-size: 0.72rem; color: var(--text-muted); }
+.evm-vote-btn {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #1565c0;
+    border: 2px solid #1e88e5;
+    color: white; font-size: 0.9rem; font-weight: 800;
+    cursor: pointer; flex-shrink: 0; padding: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    transition: all 0.15s ease;
+}
+.evm-vote-btn:hover  { background: #1e88e5; transform: scale(1.1); }
+.evm-vote-btn.pressed { background: #10b981; border-color: #10b981; box-shadow: 0 0 12px rgba(16,185,129,0.6); animation: btnPulse 0.3s ease; }
+@keyframes btnPulse { 0%{transform:scale(1)} 50%{transform:scale(1.25)} 100%{transform:scale(1)} }
+.evm-selected-notice {
+    margin-top: 1rem; text-align: center;
+    background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3);
+    border-radius: 12px; padding: 0.8rem 1.2rem; font-size: 0.9rem; color: #86efac;
+    max-width: 500px;
+}
+
+/* VVPAT step */
+.vvpat-window {
+    width: 200px; margin: 1rem auto;
+    background: #0a0a12; border: 2px solid #10b981;
+    border-radius: 8px; padding: 0; overflow: hidden;
+    box-shadow: 0 0 20px rgba(16,185,129,0.3);
+}
+.vvpat-label {
+    background: #10b981; color: #000; font-size: 0.6rem; font-weight: 800;
+    letter-spacing: 1px; text-align: center; padding: 0.2rem;
+}
+.vvpat-slip {
+    padding: 0.8rem; text-align: center; font-size: 0.75rem;
+    border: 1px dashed rgba(255,255,255,0.2); margin: 0.5rem;
+    border-radius: 4px; background: #f9f9f0; color: #111;
+    animation: slipFade 0.5s ease;
+}
+@keyframes slipFade { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+.vvpat-countdown { color: #10b981; font-size: 0.85rem; margin-top: 0.5rem; font-weight: 700; }
+
+/* Success step */
+.evm-success { text-align: center; padding: 1rem 0; }
+.evm-success-icon { font-size: 4rem; animation: popIn 0.5s cubic-bezier(0.175,0.885,0.32,1.275); }
+@keyframes popIn { from{transform:scale(0)} to{transform:scale(1)} }
+.evm-success h3 { font-size: 1.6rem; font-weight: 800; color: #86efac; margin: 0.8rem 0 0.5rem; }
+.evm-restart-btn {
+    background: linear-gradient(135deg, var(--primary), #7c3aed);
+    color: white; border: none; padding: 0.8rem 2rem;
+    border-radius: 999px; font-weight: 700; cursor: pointer;
+    margin-top: 1.2rem; font-size: 0.95rem; transition: all 0.3s ease;
+}
+.evm-restart-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(79,70,229,0.4); }
+
+/* Controls */
+.evm-controls {
+    display: flex; align-items: center;
+    justify-content: space-between; gap: 1rem;
+}
+.evm-step-label { color: var(--text-muted); font-size: 0.9rem; font-weight: 600; }
+.evm-btn-pri {
+    background: linear-gradient(135deg, var(--primary), #7c3aed);
+    color: white; border: none; padding: 0.7rem 1.6rem;
+    border-radius: 999px; font-weight: 700; cursor: pointer;
+    font-size: 0.95rem; transition: all 0.25s ease;
+}
+.evm-btn-pri:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(79,70,229,0.4); }
+.evm-btn-sec {
+    background: rgba(255,255,255,0.08); color: white;
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 0.7rem 1.6rem; border-radius: 999px;
+    font-weight: 600; cursor: pointer; font-size: 0.95rem;
+    transition: all 0.25s ease;
+}
+.evm-btn-sec:hover { background: rgba(255,255,255,0.14); }
+
+/* ===================================================== */
+/* 🎭 SCENARIO SIMULATOR                                 */
+/* ===================================================== */
+.scenarios-container { width: 100%; max-width: 900px; margin: 0 auto; padding-bottom: 3rem; }
+.scenarios-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+@media(max-width:640px) { .scenarios-grid { grid-template-columns: 1fr; } }
+.scenario-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px; overflow: hidden;
+    cursor: pointer; transition: all 0.3s ease;
+    backdrop-filter: blur(12px);
+}
+.scenario-card:hover { transform: translateY(-4px); border-color: rgba(79,70,229,0.4); box-shadow: 0 12px 30px rgba(0,0,0,0.3); }
+.scenario-header {
+    display: flex; align-items: center; gap: 0.9rem;
+    padding: 1.1rem 1.3rem;
+}
+.scenario-emoji { font-size: 1.8rem; flex-shrink: 0; }
+.scenario-title { font-size: 0.95rem; font-weight: 700; }
+.scenario-subtitle { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.1rem; }
+.scenario-chevron { margin-left: auto; color: var(--text-muted); transition: transform 0.3s ease; flex-shrink: 0; }
+.scenario-card.open .scenario-chevron { transform: rotate(180deg); }
+.scenario-body {
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s ease;
+    border-top: 0px solid var(--card-border);
+}
+.scenario-card.open .scenario-body {
+    max-height: 400px;
+    border-top: 1px solid var(--card-border);
+    padding: 1.2rem 1.3rem;
+}
+.scenario-steps { display: flex; flex-direction: column; gap: 0.7rem; }
+.scenario-step {
+    display: flex; gap: 0.8rem; align-items: flex-start;
+}
+.scenario-step-num {
+    width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), #7c3aed);
+    color: white; font-size: 0.7rem; font-weight: 800;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
+}
+.scenario-step-text { font-size: 0.88rem; color: #cbd5e1; line-height: 1.5; }
+.scenario-helpline {
+    margin-top: 1rem; background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.3); border-radius: 10px;
+    padding: 0.6rem 0.9rem; font-size: 0.82rem; color: #fca5a5;
+}
+
+/* ===================================================== */
+/* ECI MAP                                               */
+/* ===================================================== */
+.eci-map-wrap { width: 100%; max-width: 1000px; margin: 0 auto; padding-bottom: 3rem; }
+.map-stats-bar { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 1.5rem; }
+.map-stat { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 1rem; text-align: center; }
+.map-stat-num { font-size: 1.5rem; font-weight: 800; color: #a5b4fc; }
+.map-stat-lbl { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem; }
+.map-controls { display: flex; gap: 0.8rem; margin-bottom: 1.2rem; align-items: center; flex-wrap: wrap; }
+.map-search-input { flex: 1; min-width: 200px; background: rgba(0,0,0,0.25); border: 1px solid var(--card-border); border-radius: 999px; padding: 0.65rem 1.2rem; color: white; font-size: 0.9rem; font-family: inherit; outline: none; }
+.map-search-input::placeholder { color: #64748b; }
+.map-zone-filters { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.zone-btn { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); color: var(--text-muted); padding: 0.45rem 0.9rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+.zone-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
+.map-layout { display: grid; grid-template-columns: 1fr 300px; gap: 1.2rem; margin-bottom: 1rem; }
+#eci-map { height: 480px; border-radius: 16px; overflow: hidden; border: 1px solid var(--card-border); }
+.leaflet-container { background: #0f172a !important; }
+.leaflet-popup-content-wrapper { background: #1e293b !important; border: 1px solid rgba(255,255,255,0.15) !important; color: white !important; border-radius: 12px !important; }
+.leaflet-popup-tip { background: #1e293b !important; }
+.map-sidebar { display: flex; flex-direction: column; gap: 1rem; }
+.map-sidebar-placeholder { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 2rem 1.5rem; text-align: center; }
+.map-sidebar-placeholder h4 { font-size: 1.1rem; margin: 0.5rem 0 0.4rem; }
+.map-sidebar-placeholder p { color: var(--text-muted); font-size: 0.85rem; }
+.map-state-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 1.2rem; animation: fadeIn 0.3s ease; }
+.map-state-header { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem; }
+.map-state-flag { font-size: 2rem; }
+.map-state-name { font-size: 1.1rem; font-weight: 800; }
+.map-state-type { font-size: 0.72rem; color: var(--text-muted); }
+.map-state-rows { display: flex; flex-direction: column; gap: 0.5rem; }
+.map-state-row { display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.82rem; }
+.map-state-row:last-child { border-bottom: none; }
+.map-state-row-label { color: var(--text-muted); }
+.map-state-row-val { font-weight: 700; color: #e2e8f0; }
+.map-view-eci { display: block; text-align: center; margin-top: 0.8rem; background: linear-gradient(135deg, var(--primary), #7c3aed); color: white; text-decoration: none; padding: 0.55rem 1rem; border-radius: 999px; font-size: 0.82rem; font-weight: 700; }
+.map-quick-links { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 1rem 1.2rem; }
+.map-ql-title { font-size: 0.78rem; font-weight: 800; color: var(--text-muted); letter-spacing: 1px; margin-bottom: 0.7rem; }
+.map-ql-btn { display: block; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 0.5rem 0.8rem; font-size: 0.82rem; color: #e2e8f0; text-decoration: none; margin-bottom: 0.4rem; transition: all 0.2s ease; }
+.map-ql-btn:hover { background: rgba(79,70,229,0.15); color: white; }
+.map-legend { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
+.map-legend-title { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; margin-right: 0.3rem; }
+.legend-chip { padding: 0.25rem 0.7rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
+
+/* iframe Google Map */
+#eci-map {
+    height: 480px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--card-border);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+    width: 100%;
+}
+
+/* State picker */
+.map-picker-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 1rem 1.2rem; flex-shrink: 0; }
+.state-picker-select { width: 100%; margin-top: 0.5rem; background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 10px; padding: 0.6rem 0.8rem; color: white; font-family: inherit; font-size: 0.85rem; outline: none; cursor: pointer; }
+.state-picker-select option { background: #1e293b; color: white; }
+
+/* ================================================= */
+/* INDIAN TRICOLOR THEME                             */
+/* ================================================= */
+:root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #fff9f3;
+    --card-bg: rgba(255,255,255,0.97);
+    --card-border: rgba(0,0,0,0.10);
+    --text-primary: #111827;
+    --text-muted: #6b7280;
+    --primary: #e8821a;
+}
+
+/* Thin tricolor stripe at very top */
+body::before {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, #FF9933 33.33%, #ffffff 33.33%, #ffffff 66.66%, #138808 66.66%);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+}
+
+body {
+    background: #ffffff !important;
+    color: #111827 !important;
+}
+
+/* NAVBAR — Saffron Orange */
+.main-navbar {
+    background: linear-gradient(135deg, #FF9933, #e07010) !important;
+    border-bottom: 3px solid #138808 !important;
+    backdrop-filter: none !important;
+    top: 5px !important;
+}
+.nav-item { color: rgba(255,255,255,0.92) !important; font-weight: 700 !important; }
+.nav-item:hover, .nav-item.active { color: #fff !important; background: rgba(0,0,0,0.18) !important; border-radius: 8px !important; }
+.nav-logo span { color: #fff !important; }
+.lang-toggle-btn { color: #fff !important; border-color: rgba(255,255,255,0.4) !important; background: rgba(255,255,255,0.15) !important; }
+.login-btn, .user-profile { color: #fff !important; border-color: rgba(255,255,255,0.4) !important; background: rgba(255,255,255,0.15) !important; }
+.user-name-display { color: #fff !important; }
+
+/* HERO HEADER — orange gradient fading to white */
+.header {
+    background: linear-gradient(180deg, #FF9933 0%, #ffb84d 30%, #fff9f0 65%, #ffffff 100%) !important;
+    border-bottom: 3px solid #138808 !important;
+}
+.header h1 { color: #1a1a1a !important; -webkit-text-fill-color: #1a1a1a !important; background: none !important; }
+.header > p, .header p { color: #4a3000 !important; }
+.header .subtitle { color: #4a3000 !important; }
+
+/* CONTENT SECTIONS — white */
+.content-section { background: #ffffff !important; }
+.page-wrapper { background: #ffffff !important; }
+
+/* Section headings — orange */
+.section-title, .section-header-center h2 {
+    background: linear-gradient(135deg, #e8821a, #138808) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+}
+
+/* Cards — white with shadow */
+.tool-card, .learn-card, .timeline-step, .quiz-question-card,
+.readiness-card, .evm-stage, .scenario-card, .map-stat,
+.map-sidebar-placeholder, .map-state-card, .map-quick-links, .map-picker-card {
+    background: #ffffff !important;
+    border: 1px solid rgba(0,0,0,0.10) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08) !important;
+    color: #111827 !important;
+}
+.tool-card h3, .learn-card h3, .module-title { color: #e8821a !important; -webkit-text-fill-color: #e8821a !important; }
+.tool-card p, .learn-card p, .module-desc { color: #555 !important; -webkit-text-fill-color: #555 !important; }
+
+/* Text overrides */
+h2, h3, h4 { color: #111827 !important; }
+p, span, li, label { color: #374151; }
+.text-muted, .evm-step-info p, .evm-tip { color: #6b7280 !important; }
+
+/* Inputs */
+.question-input, .verify-input, .auth-input, .map-search-input, .state-picker-select {
+    background: #f9fafb !important;
+    border: 1.5px solid #d1d5db !important;
+    color: #111827 !important;
+}
+.question-input::placeholder, .verify-input::placeholder, .map-search-input::placeholder { color: #9ca3af !important; }
+
+/* Answer/response area */
+.answer-area, #answer-area { background: #fff9f3 !important; border: 1px solid rgba(232,130,26,0.3) !important; color: #111827 !important; }
+
+/* Buttons — orange primary */
+.ask-btn, .verify-btn, .auth-submit, .evm-btn-pri, .evm-restart-btn, .map-view-eci {
+    background: linear-gradient(135deg, #FF9933, #e07010) !important;
+    color: #fff !important;
+    border: none !important;
+}
+.evm-btn-sec { background: #f3f4f6 !important; color: #374151 !important; border: 1px solid #d1d5db !important; }
+
+/* Zone / filter buttons */
+.zone-btn { background: #f3f4f6 !important; color: #374151 !important; border: 1px solid #d1d5db !important; }
+.zone-btn.active { background: linear-gradient(135deg, #FF9933, #e07010) !important; color: #fff !important; border-color: #e07010 !important; }
+
+/* EVM machine keeps its dark look — it's intentional */
+.evm-machine { background: linear-gradient(170deg, #1e2235, #141726) !important; }
+
+/* Readiness checked state — green */
+.readiness-item.checked { background: rgba(19,136,8,0.08) !important; border-color: rgba(19,136,8,0.4) !important; }
+.readiness-item.checked .readiness-checkbox { background: #138808 !important; border-color: #138808 !important; }
+.readiness-item.checked .readiness-item-text { color: #138808 !important; }
+
+/* Quick links */
+.map-ql-btn { background: #f9fafb !important; color: #374151 !important; border: 1px solid #e5e7eb !important; }
+.map-ql-btn:hover { background: #fff9f3 !important; border-color: #e8821a !important; color: #e07010 !important; }
+
+/* Stat numbers */
+.map-stat-num, .readiness-pct { color: #e8821a !important; }
+
+/* FOOTER — India Green */
+.site-footer {
+    background: linear-gradient(135deg, #138808, #0d6b06) !important;
+    border-top: 4px solid #FF9933 !important;
+    color: #fff !important;
+}
+.site-footer h2, .site-footer h3, .footer-column h3 { color: #fff !important; -webkit-text-fill-color: #fff !important; }
+.site-footer p, .footer-column li a, .copyright, .footer-legal a { color: rgba(255,255,255,0.85) !important; }
+.footer-legal a:hover { color: #FF9933 !important; }
+.footer-bottom { border-top-color: rgba(255,255,255,0.2) !important; }
+
+/* Scrollbar */
+::-webkit-scrollbar-track { background: #f3f4f6 !important; }
+::-webkit-scrollbar-thumb { background: #FF9933 !important; }
+
+/* ================================================= */
+/* TRICOLOR THEME v2 — PREMIUM PATRIOTIC POLISH      */
+/* ================================================= */
+
+/* Thicker, glowing tricolor stripe */
+body::before {
+    height: 6px !important;
+    background: linear-gradient(90deg,
+        #FF9933 0%, #FF9933 33.33%,
+        #ffffff 33.33%, #ffffff 66.66%,
+        #138808 66.66%, #138808 100%) !important;
+    box-shadow: 0 2px 12px rgba(255,153,51,0.5) !important;
+}
+
+/* NAVBAR — deep saffron with shimmer */
+.main-navbar {
+    background: linear-gradient(135deg, #FF9933 0%, #e8621a 50%, #c8470a 100%) !important;
+    box-shadow: 0 4px 24px rgba(200,71,10,0.45), inset 0 1px 0 rgba(255,255,255,0.25) !important;
+}
+
+/* Ashoka Chakra decorative watermark on hero */
+.header::after {
+    content: '\2638';
+    position: absolute;
+    right: 5%;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 9rem;
+    color: rgba(0,0,128,0.08);
+    pointer-events: none;
+    line-height: 1;
+}
+
+/* Hero — premium saffron-to-cream with depth */
+.header {
+    background: linear-gradient(160deg,
+        #FF9933 0%,
+        #ffad47 20%,
+        #ffe8c0 50%,
+        #fff9f3 75%,
+        #ffffff 100%) !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+/* Decorative diagonal stripes on hero */
+.header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+        135deg,
+        transparent,
+        transparent 40px,
+        rgba(255,153,51,0.06) 40px,
+        rgba(255,153,51,0.06) 80px
+    );
+    pointer-events: none;
+}
+
+.header h1 {
+    color: #7a2e00 !important;
+    -webkit-text-fill-color: #7a2e00 !important;
+    text-shadow: 0 2px 8px rgba(255,153,51,0.3) !important;
+}
+.header > p, .header p, .header .subtitle { color: #7a3800 !important; }
+
+/* TOOL CARDS — colored left border accent */
+.tool-card {
+    background: #ffffff !important;
+    border-left: 4px solid #FF9933 !important;
+    border-top: 1px solid #f0e0d0 !important;
+    border-right: 1px solid #f0e0d0 !important;
+    border-bottom: 1px solid #f0e0d0 !important;
+    box-shadow: 0 4px 20px rgba(255,153,51,0.12) !important;
+    transition: all 0.3s ease !important;
+}
+.tool-card:hover {
+    border-left-color: #138808 !important;
+    box-shadow: 0 8px 30px rgba(19,136,8,0.15) !important;
+    transform: translateY(-4px) !important;
+}
+.tool-card h3 {
+    background: linear-gradient(135deg, #e8621a, #138808) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+}
+
+/* LEARN CARDS — alternating accent border */
+.learn-card { border-left: 4px solid #138808 !important; border-color: #e8f5e9 !important; }
+.learn-card:hover { border-left-color: #FF9933 !important; }
+
+/* SECTION HEADERS — tricolor gradient text */
+.section-title, .section-header-center h2, h2 {
+    background: linear-gradient(135deg, #FF9933 0%, #e8621a 40%, #138808 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1)) !important;
+}
+
+/* BUTTONS — gradient orange with glow */
+.ask-btn, .verify-btn, .auth-submit, .evm-btn-pri, .evm-restart-btn, .map-view-eci {
+    background: linear-gradient(135deg, #FF9933, #e8621a, #c8470a) !important;
+    box-shadow: 0 4px 16px rgba(200,71,10,0.35) !important;
+    color: #fff !important;
+    border: none !important;
+    transition: all 0.3s ease !important;
+}
+.ask-btn:hover, .verify-btn:hover, .evm-btn-pri:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 24px rgba(200,71,10,0.5) !important;
+}
+
+/* READINESS CARD — tricolor progress */
+.readiness-card {
+    background: linear-gradient(135deg, #fff9f3, #ffffff, #f0fff0) !important;
+    border-top: 3px solid #FF9933 !important;
+    border-bottom: 3px solid #138808 !important;
+}
+
+/* MAP STATS — colored gradient numbers */
+.map-stat { border-top: 3px solid #FF9933 !important; }
+.map-stat:nth-child(2) { border-top-color: #000080 !important; }
+.map-stat:nth-child(3) { border-top-color: #138808 !important; }
+.map-stat:nth-child(4) { border-top-color: #e8621a !important; }
+.map-stat-num { font-size: 1.6rem !important; color: #e8621a !important; }
+
+/* ZONE BUTTONS — patriotic active state */
+.zone-btn.active {
+    background: linear-gradient(135deg, #FF9933, #e8621a) !important;
+    box-shadow: 0 4px 12px rgba(232,98,26,0.4) !important;
+    color: white !important;
+}
+
+/* FOOTER — richer green with wave pattern */
+.site-footer {
+    background: linear-gradient(135deg, #0d6b06 0%, #138808 40%, #1a9e10 70%, #0d6b06 100%) !important;
+    box-shadow: inset 0 4px 0 #FF9933 !important;
+    border-top: 4px solid #FF9933 !important;
+}
+.site-footer::before {
+    content: '';
+    display: block;
+    height: 3px;
+    background: linear-gradient(90deg, #FF9933, #ffffff, #138808);
+    margin-bottom: 1px;
+    opacity: 0.4;
+}
+
+/* QUIZ CARDS — accented */
+.quiz-question-card { border-left: 4px solid #000080 !important; }
+
+/* SCROLLBAR — tricolor */
+::-webkit-scrollbar-track { background: #fff9f3 !important; }
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(#FF9933, #138808) !important;
+    border-radius: 4px !important;
+}
+
+/* EVM MACHINE HEADER — keep navy blue */
+.evm-machine-header {
+    background: linear-gradient(90deg, #000080, #0000b0) !important;
+    border-bottom: 3px solid #FF9933 !important;
+}
+
+/* NAV hover glow */
+.nav-item:hover {
+    background: rgba(255,255,255,0.2) !important;
+    box-shadow: 0 0 12px rgba(255,255,255,0.2) !important;
+    border-radius: 8px !important;
+}
+
+/* ================================================= */
+/* EVM VISIBILITY FIXES                              */
+/* ================================================= */
+
+/* Ensure text inside the dark EVM machine is always bright and visible */
+.evm-machine, .evm-machine * {
+    color: #ffffff !important;
+}
+
+/* Specific labels inside the machine */
+.evm-candidate-name {
+    font-weight: 800 !important;
+    color: #ffffff !important;
+    font-size: 0.95rem !important;
+}
+
+.evm-party-name {
+    color: rgba(255,255,255,0.7) !important;
+    font-size: 0.75rem !important;
+}
+
+.evm-serial {
+    color: #FF9933 !important; /* Saffron serial numbers for visibility */
+    font-weight: 900 !important;
+}
+
+/* Machine headers */
+.evm-machine-title {
+    color: #ffffff !important;
+    font-weight: 900 !important;
+    letter-spacing: 1px !important;
+}
+
+.evm-machine-subtitle {
+    color: rgba(255,255,255,0.8) !important;
+}
+
+/* Selected notice outside machine should be dark (on white bg) */
+.evm-selected-notice {
+    color: #138808 !important; /* India Green for success notice */
+    background: rgba(19,136,8,0.1) !important;
+    border: 1px solid rgba(19,136,8,0.3) !important;
+    padding: 0.8rem !important;
+    border-radius: 10px !important;
+    margin-top: 1rem !important;
+    text-align: center !important;
+}
+
+/* Step 5 VVPAT Verification fixes */
+.vvpat-window {
+    background: #000000 !important;
+    border: 4px solid #333 !important;
+}
+
+.vvpat-label {
+    color: #FF9933 !important;
+}
+
+.vvpat-slip {
+    background: #ffffff !important;
+}
+
+.vvpat-slip * {
+    color: #000000 !important; /* Black ink on white paper slip */
+}
+
+.vvpat-countdown {
+    color: #e8621a !important;
+    font-weight: 700 !important;
+}
