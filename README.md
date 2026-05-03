@@ -24,7 +24,7 @@ By combining **Generative AI (Gemini)** with **Real-time Translation, Voice Synt
 
 ![Home](img/home.png)
 ![Map](img/map.png)
-![Scenario](img/scenario.png)
+![AI Assistant](img/AI.png)
 
 ---
 
