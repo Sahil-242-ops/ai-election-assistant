@@ -24,6 +24,9 @@ This project focuses on improving civic awareness by helping users:
 
 👉 [https://ai-election-assistant-130588119495.us-central1.run.app](https://ai-election-assistant-130588119495.us-central1.run.app)
 
+## 📸 Demo 
+![AI Election Assistant Interface](img/Demo.png)
+
 ## ✨ Key Features
 
 ### 🧠 AI-Powered Assistant
@@ -45,6 +48,12 @@ This project focuses on improving civic awareness by helping users:
 - Interactive quiz system
 - Score tracking
 - Competitive leaderboard
+- Leaderboard currently uses in-memory storage and can be extended using persistent databases like Firebase or MongoDB.
+
+## ☁️ Google Services Used
+- Google Gemini API → AI-powered responses  
+- Google Cloud Run → Deployment  
+- Google Fonts → UI typography
 
 ### ⚡ Hybrid Intelligence System
 - **Rule-based** → instant accurate responses
@@ -102,6 +111,7 @@ Acts as a decision engine, choosing between rule-based responses and AI-generate
 - Lightweight Flask backend.
 - AI used only when necessary.
 - Fast response times.
+- Optimized to minimize API calls using rule-based filtering before AI invocation.
 
 ## 🧪 Testing
 Unit tests + API tests covering valid inputs, edge cases, invalid inputs, and unknown queries.
